@@ -5,6 +5,8 @@ using System.Reflection.Emit;
 using System.Numerics;
 using System;
 using System.Text.Json.Nodes;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace raygui_cs
 {
@@ -162,140 +164,154 @@ namespace raygui_cs
     };
     public static class Raygui
     {
-        const int DEFAULT = 0;// Basic controls
-        const int LABEL = 1;          // Used also for: LABELBUTTON
-        const int BUTTON = 2;
-        const int TOGGLE = 3;         // Used also for: TOGGLEGROUP
-        const int SLIDER = 4;         // Used also for: SLIDERBAR
-        const int PROGRESSBAR = 5;
-        const int CHECKBOX = 6;
-        const int COMBOBOX = 7;
-        const int DROPDOWNBOX = 8;
-        const int TEXTBOX = 9;        // Used also for: TEXTBOXMULTI
-        const int VALUEBOX = 10;
-        const int SPINNER = 11;        // Uses: BUTTON; VALUEBOX
-        const int LISTVIEW = 12;
-        const int COLORPICKER = 13;
-        const int SCROLLBAR = 14;
-        const int STATUSBAR = 15;
-        static bool guiStyleLoaded = false;
-        const int TEXT_INNER_PADDING = 16;    // TextBox/TextBoxMulti/ValueBox/Spinner inner text padding
-        const int TEXT_LINES_SPACING = 17;         // TextBoxMulti lines separation
-        const int TEXT_ALIGNMENT_VERTICAL = 18;    // TextBoxMulti vertical alignment: 0-CENTERED, 1-UP, 2-DOWN
-        const int TEXT_MULTILINE = 19;             // TextBox supports multiple lines
-        const int TEXT_WRAP_MODE = 20;              // TextBox wrap mode for multiline: 0-NO_WRAP, 1-CHAR_WRAP, 2-WORD_WRAP
+
+        public const int STATE_NORMAL = 0;
+        public const int STATE_FOCUSED = 1;
+        public const int STATE_PRESSED = 2;
+        public const int STATE_DISABLED = 3;
+
+        public const int DEFAULT = 0;// Basic controls
+        public const int LABEL = 1;          // Used also for: LABELBUTTON
+        public const int BUTTON = 2;
+        public const int TOGGLE = 3;         // Used also for: TOGGLEGROUP
+        public const int SLIDER = 4;         // Used also for: SLIDERBAR
+        public const int PROGRESSBAR = 5;
+        public const int CHECKBOX = 6;
+        public const int COMBOBOX = 7;
+        public const int DROPDOWNBOX = 8;
+        public const int TEXTBOX = 9;        // Used also for: TEXTBOXMULTI
+        public const int VALUEBOX = 10;
+        public const int SPINNER = 11;        // Uses: BUTTON; VALUEBOX
+        public const int LISTVIEW = 12;
+        public const int COLORPICKER = 13;
+        public const int SCROLLBAR = 14;
+        public const int STATUSBAR = 15;
+        public static bool guiStyleLoaded = false;
+        public const int TEXT_INNER_PADDING = 16;    // TextBox/TextBoxMulti/ValueBox/Spinner inner text padding
+        public const int TEXT_LINES_SPACING = 17;         // TextBoxMulti lines separation
+        public const int TEXT_ALIGNMENT_VERTICAL = 18;    // TextBoxMulti vertical alignment: 0-CENTERED, 1-UP, 2-DOWN
+        public const int TEXT_MULTILINE = 19;             // TextBox supports multiple lines
+        public const int TEXT_WRAP_MODE = 20;              // TextBox wrap mode for multiline: 0-NO_WRAP, 1-CHAR_WRAP, 2-WORD_WRAP
 
 
-        const int BORDER_COLOR_NORMAL = 0;
-        const int BASE_COLOR_NORMAL = 1;
-        const int TEXT_COLOR_NORMAL = 2;
-        const int BORDER_COLOR_FOCUSED = 3;
-        const int BASE_COLOR_FOCUSED = 4;
-        const int TEXT_COLOR_FOCUSED = 5;
-        const int BORDER_COLOR_PRESSED = 6;
-        const int BASE_COLOR_PRESSED = 7;
-        const int TEXT_COLOR_PRESSED = 8;
-        const int BORDER_COLOR_DISABLED = 9;
-        const int BASE_COLOR_DISABLED = 10;
-        const int TEXT_COLOR_DISABLED = 11;
-        const int BORDER_WIDTH = 12;
-        const int TEXT_PADDING = 13;
-        const int TEXT_ALIGNMENT = 14;
-        const int RESERVED = 15;
+        public const int BORDER_COLOR_NORMAL = 0;
+        public const int BASE_COLOR_NORMAL = 1;
+        public const int TEXT_COLOR_NORMAL = 2;
+        public const int BORDER_COLOR_FOCUSED = 3;
+        public const int BASE_COLOR_FOCUSED = 4;
+        public const int TEXT_COLOR_FOCUSED = 5;
+        public const int BORDER_COLOR_PRESSED = 6;
+        public const int BASE_COLOR_PRESSED = 7;
+        public const int TEXT_COLOR_PRESSED = 8;
+        public const int BORDER_COLOR_DISABLED = 9;
+        public const int BASE_COLOR_DISABLED = 10;
+        public const int TEXT_COLOR_DISABLED = 11;
+        public const int BORDER_WIDTH = 12;
+        public const int TEXT_PADDING = 13;
+        public const int TEXT_ALIGNMENT = 14;
+        public const int RESERVED = 15;
 
 
-        const int TEXT_ALIGN_LEFT = 0;
-        const int TEXT_ALIGN_CENTER = 1;
-        const int TEXT_ALIGN_RIGHT = 2;
+        public const int TEXT_ALIGN_LEFT = 0;
+        public const int TEXT_ALIGN_CENTER = 1;
+        public const int TEXT_ALIGN_RIGHT = 2;
 
-        const int TEXT_SIZE = 16;             // Text size (glyphs max height)
-        const int TEXT_SPACING = 17;               // Text spacing between glyphs
-        const int LINE_COLOR = 18;                 // Line control color
-        const int BACKGROUND_COLOR = 19;           // Background color
+        public const int TEXT_SIZE = 16;             // Text size (glyphs max height)
+        public const int TEXT_SPACING = 17;               // Text spacing between glyphs
+        public const int LINE_COLOR = 18;                 // Line control color
+        public const int BACKGROUND_COLOR = 19;           // Background color
 
         public static GuiState guiState = GuiState.STATE_NORMAL;
 
-        const int RAYGUI_MAX_CONTROLS = 16;   // Maximum number of standard controls
-        const int RAYGUI_MAX_PROPS_BASE = 16;   // Maximum number of standard properties
-        const int RAYGUI_MAX_PROPS_EXTENDED = 8;   // Maximum number of extended properties
+        public const int RAYGUI_MAX_CONTROLS = 16;   // Maximum number of standard controls
+        public const int RAYGUI_MAX_PROPS_BASE = 16;   // Maximum number of standard properties
+        public const int RAYGUI_MAX_PROPS_EXTENDED = 8;   // Maximum number of extended properties
 
 
-        const int GROUP_PADDING = 16;         // ToggleGroup separation between toggles
+        public const int GROUP_PADDING = 16;         // ToggleGroup separation between toggles
 
 
         // Slider/SliderBar
-        const int SLIDER_WIDTH = 16;          // Slider size of internal bar
-        const int SLIDER_PADDING = 17;
+        public const int SLIDER_WIDTH = 16;          // Slider size of internal bar
+        public const int SLIDER_PADDING = 17;
 
         // ProgressBar
-        const int PROGRESS_PADDING = 16;      // ProgressBar internal padding
+        public const int PROGRESS_PADDING = 16;      // ProgressBar internal padding
 
         // CheckBox
-        const int CHECK_PADDING = 16;        // CheckBox internal check padding
+        public const int CHECK_PADDING = 16;        // CheckBox internal check padding
 
 
         // ComboBox
-        const int COMBO_BUTTON_WIDTH = 16;    // ComboBox right button width
-        const int COMBO_BUTTON_SPACING = 17;// ComboBox button separation
+        public const int COMBO_BUTTON_WIDTH = 16;    // ComboBox right button width
+        public const int COMBO_BUTTON_SPACING = 17;// ComboBox button separation
 
 
         // DropdownBox
-        const int ARROW_PADDING = 16;         // DropdownBox arrow separation from border and items
-        const int DROPDOWN_ITEMS_SPACING = 17;// DropdownBox items separation
+        public const int ARROW_PADDING = 16;         // DropdownBox arrow separation from border and items
+        public const int DROPDOWN_ITEMS_SPACING = 17;// DropdownBox items separation
 
         // Spinner
-        const int SPIN_BUTTON_WIDTH = 16;     // Spinner left/right buttons width
-        const int SPIN_BUTTON_SPACING = 17;        // Spinner buttons separation
+        public const int SPIN_BUTTON_WIDTH = 16;     // Spinner left/right buttons width
+        public const int SPIN_BUTTON_SPACING = 17;        // Spinner buttons separation
 
 
         // ListView
-        const int LIST_ITEMS_HEIGHT = 16;     // ListView items height
-        const int LIST_ITEMS_SPACING = 17;         // ListView items separation
-        const int SCROLLBAR_WIDTH = 18;            // ListView scrollbar size (usually width)
-        const int SCROLLBAR_SIDE = 19;             // ListView scrollbar side (0-left, 1-right)
+        public const int LIST_ITEMS_HEIGHT = 16;     // ListView items height
+        public const int LIST_ITEMS_SPACING = 17;         // ListView items separation
+        public const int SCROLLBAR_WIDTH = 18;            // ListView scrollbar size (usually width)
+        public const int SCROLLBAR_SIDE = 19;             // ListView scrollbar side (0-left, 1-right)
 
 
         // ColorPicker
-        const int COLOR_SELECTOR_SIZE = 16;
-        const int HUEBAR_WIDTH = 17;               // ColorPicker right hue bar width
-        const int HUEBAR_PADDING = 18;             // ColorPicker right hue bar separation from panel
-        const int HUEBAR_SELECTOR_HEIGHT = 19;    // ColorPicker right hue bar selector height
-        const int HUEBAR_SELECTOR_OVERFLOW = 20;    // ColorPicker right hue bar selector overflow
+        public const int COLOR_SELECTOR_SIZE = 16;
+        public const int HUEBAR_WIDTH = 17;               // ColorPicker right hue bar width
+        public const int HUEBAR_PADDING = 18;             // ColorPicker right hue bar separation from panel
+        public const int HUEBAR_SELECTOR_HEIGHT = 19;    // ColorPicker right hue bar selector height
+        public const int HUEBAR_SELECTOR_OVERFLOW = 20;    // ColorPicker right hue bar selector overflow
 
 
-        const int ARROWS_SIZE = 16;
-        const int ARROWS_VISIBLE = 17;
-        const int SCROLL_SLIDER_PADDING = 18;      // (SLIDERBAR, SLIDER_PADDING)
-        const int SCROLL_SLIDER_SIZE = 19;
-        const int SCROLL_PADDING = 20;
-        const int SCROLL_SPEED = 21;
+        public const int ARROWS_SIZE = 16;
+        public const int ARROWS_VISIBLE = 17;
+        public const int SCROLL_SLIDER_PADDING = 18;      // (SLIDERBAR, SLIDER_PADDING)
+        public const int SCROLL_SLIDER_SIZE = 19;
+        public const int SCROLL_PADDING = 20;
+        public const int SCROLL_SPEED = 21;
 
-        const int SCROLLBAR_LEFT_SIDE = 0;
-        const int SCROLLBAR_RIGHT_SIDE = 1;
+        public const int SCROLLBAR_LEFT_SIDE = 0;
+        public const int SCROLLBAR_RIGHT_SIDE = 1;
 
         // GuiPropertyElement
 
-        const int BORDER = 0;
-        const int BASE = 1;
-        const int TEXT = 2;
-        const int OTHER = 3;
-
-        const int MAX_LINE_BUFFER_SIZE = 256;
-
+        public const int BORDER = 0;
+        public const int BASE = 1;
+        public const int TEXT = 2;
+        public const int OTHER = 3;
+        //Defines
+        public static int RAYGUI_PANEL_BORDER_WIDTH = 1;
+        public static int RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT = 1;
+        public const int MAX_LINE_BUFFER_SIZE = 256;
+        public const int RAYGUI_MAX_TEXT_LINES = 128;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int TEXT_VALIGN_PIXEL_OFFSET(int h) => ((int)h % 2);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int TEXT_VALIGN_PIXEL_OFFSET(float h) => ((int)h % 2);
+
         public static int ICON_TEXT_PADDING = 4;
         public static bool guiLocked = false;                  // Gui lock state (no inputs processed)
         public static float guiAlpha = 1.0f;                   // Gui element transpacency on drawing
-
+        public static bool guiSliderDragging = false;
         public static uint guiIconScale = 1;
-        const int RAYGUI_ICON_SIZE = 16;          // Size of icons in pixels (squared)
-        const int RAYGUI_ICON_MAX_ICONS = 256;          // Maximum number of icons
-        const int RAYGUI_ICON_MAX_NAME_LENGTH = 32;          // Maximum length of icon name id
+        public static int RAYGUI_ICON_SIZE = 16;          // Size of icons in pixels (squared)
+        public static int RAYGUI_ICON_MAX_ICONS = 256;          // Maximum number of icons
+        public static int RAYGUI_ICON_MAX_NAME_LENGTH = 32;          // Maximum length of icon name id
         public static uint [ ] guiStyle;
         public static Font guiFont;
-        const int RAYGUI_ICON_DATA_ELEMENTS = (RAYGUI_ICON_SIZE * RAYGUI_ICON_SIZE / 32);
+        public static int RAYGUI_ICON_DATA_ELEMENTS = (RAYGUI_ICON_SIZE * RAYGUI_ICON_SIZE / 32);
         public static uint [ ] guiIcons;
+
+        public static bool guiTooltip = false;                 // Tooltip enabled/disabled
+        public static string? guiTooltipPtr = null;        // Tooltip string pointer (string provided by user)
         static Raygui()
         {
             guiIcons = new uint [ ]{
@@ -556,7 +572,7 @@ namespace raygui_cs
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,      // ICON_254
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,      // ICON_255
 };
-
+            guiIconsPtr = guiIcons;
             guiStyle = new uint [ RAYGUI_MAX_CONTROLS * (RAYGUI_MAX_PROPS_BASE + RAYGUI_MAX_PROPS_EXTENDED) ];
             for (int i = 0 ; i < guiStyle.Length ; i++)
             {
@@ -590,7 +606,8 @@ namespace raygui_cs
 
             return textBounds;
         }
-        static Color Fade(Color color , float alpha)
+
+        public static Color Fade(Color color , float alpha)
         {
             if (alpha < 0.0f) alpha = 0.0f;
             else if (alpha > 1.0f) alpha = 1.0f;
@@ -599,7 +616,7 @@ namespace raygui_cs
 
             return result;
         }
-        static Color GetColor(int hexValue)
+        public static Color GetColor(int hexValue)
         {
             Color color;
 
@@ -622,63 +639,112 @@ namespace raygui_cs
             return color;
         }
 
+        // Toggle Button control, returns true when active
+        public static bool GuiToggle(Rectangle bounds , string text , bool active)
+        {
+            int state = (int)guiState;
+
+            // Update control
+            //--------------------------------------------------------------------
+            if ((state != STATE_DISABLED) && !guiLocked && !guiSliderDragging)
+            {
+                Vector2 mousePoint = Raylib.GetMousePosition();
+
+                // Check toggle button state
+                if (Raylib.CheckCollisionPointRec(mousePoint , bounds))
+                {
+                    if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON)) state = STATE_PRESSED;
+                    else if (Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON))
+                    {
+                        state = STATE_NORMAL;
+                        active = !active;
+                    }
+                    else state = STATE_FOCUSED;
+                }
+            }
+            //--------------------------------------------------------------------
+
+            // Draw control
+            //--------------------------------------------------------------------
+            if (state == STATE_NORMAL)
+            {
+                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? BORDER_COLOR_PRESSED : (BORDER + state * 3)))) , guiAlpha) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? BASE_COLOR_PRESSED : (BASE + state * 3)))) , guiAlpha));
+                GuiDrawText(text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? TEXT_COLOR_PRESSED : (TEXT + state * 3)))) , guiAlpha));
+            }
+            else
+            {
+                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TOGGLE , BORDER + state * 3)) , guiAlpha) , Fade(GetColor(GuiGetStyle(TOGGLE , BASE + state * 3)) , guiAlpha));
+                GuiDrawText(text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(TOGGLE , TEXT + state * 3)) , guiAlpha));
+            }
+
+            if (state == STATE_FOCUSED) GuiTooltip(bounds);
+            //--------------------------------------------------------------------
+
+            return active;
+        }
+
+        /**
+         * Porter note: String in C# is UTF-8 already. 
+         **/
         // Get next codepoint in a UTF-8 encoded text, scanning until '\0' is found
         // When a invalid UTF-8 byte is encountered we exit as soon as possible and a '?'(0x3f) codepoint is returned
         // Total number of bytes processed are returned as a parameter
         // NOTE: the standard says U+FFFD should be returned in case of errors
         // but that character is not supported by the default font in raylib
-        static int GetCodepointNext(string text , ref int codepointSize)
+        public static int GetCodepointNext(ReadonlyString text , ref int codepointSize)
         {
-            string ptr = text;
-            int codepoint = 0x3f;       // Codepoint (defaults to '?')
             codepointSize = 1;
+            return text [ 0 ];
+            //string ptr = text;
+            //int codepoint = 0x3f;       // Codepoint (defaults to '?')
+            //codepointSize = 1;
 
-            // Get current codepoint and bytes processed
-            if (0xf0 == (0xf8 & ptr [ 0 ]))
-            {
-                // 4 byte UTF-8 codepoint
-                if ((((ptr [ 1 ] & 0xC0) ^ 0x80) != 0) || (((ptr [ 2 ] & 0xC0) ^ 0x80) != 0) || ((ptr [ 3 ] & 0xC0) ^ 0x80) != 0)
-                {
-                    return codepoint;
-                } //10xxxxxx checks
-                codepoint = ((0x07 & ptr [ 0 ]) << 18) | ((0x3f & ptr [ 1 ]) << 12) | ((0x3f & ptr [ 2 ]) << 6) | (0x3f & ptr [ 3 ]);
-                codepointSize = 4;
-            }
-            else if (0xe0 == (0xf0 & ptr [ 0 ]))
-            {
-                // 3 byte UTF-8 codepoint */
-                if (((ptr [ 1 ] & 0xC0) ^ 0x80) != 0 || ((ptr [ 2 ] & 0xC0) ^ 0x80) != 0) { return codepoint; } //10xxxxxx checks
-                codepoint = ((0x0f & ptr [ 0 ]) << 12) | ((0x3f & ptr [ 1 ]) << 6) | (0x3f & ptr [ 2 ]);
-                codepointSize = 3;
-            }
-            else if (0xc0 == (0xe0 & ptr [ 0 ]))
-            {
-                // 2 byte UTF-8 codepoint
-                if (((ptr [ 1 ] & 0xC0) ^ 0x80) != 0) { return codepoint; } //10xxxxxx checks
-                codepoint = ((0x1f & ptr [ 0 ]) << 6) | (0x3f & ptr [ 1 ]);
-                codepointSize = 2;
-            }
-            else if (0x00 == (0x80 & ptr [ 0 ]))
-            {
-                // 1 byte UTF-8 codepoint
-                codepoint = ptr [ 0 ];
-                codepointSize = 1;
-            }
+            //// Get current codepoint and bytes processed
+            //if (0xf0 == (0xf8 & ptr [ 0 ]))
+            //{
+            //    // 4 byte UTF-8 codepoint
+            //    if ((((ptr [ 1 ] & 0xC0) ^ 0x80) != 0) || (((ptr [ 2 ] & 0xC0) ^ 0x80) != 0) || ((ptr [ 3 ] & 0xC0) ^ 0x80) != 0)
+            //    {
+            //        return codepoint;
+            //    } //10xxxxxx checks
+            //    codepoint = ((0x07 & ptr [ 0 ]) << 18) | ((0x3f & ptr [ 1 ]) << 12) | ((0x3f & ptr [ 2 ]) << 6) | (0x3f & ptr [ 3 ]);
+            //    codepointSize = 4;
+            //}
+            //else if (0xe0 == (0xf0 & ptr [ 0 ]))
+            //{
+            //    // 3 byte UTF-8 codepoint */
+            //    if (((ptr [ 1 ] & 0xC0) ^ 0x80) != 0 || ((ptr [ 2 ] & 0xC0) ^ 0x80) != 0) { return codepoint; } //10xxxxxx checks
+            //    codepoint = ((0x0f & ptr [ 0 ]) << 12) | ((0x3f & ptr [ 1 ]) << 6) | (0x3f & ptr [ 2 ]);
+            //    codepointSize = 3;
+            //}
+            //else if (0xc0 == (0xe0 & ptr [ 0 ]))
+            //{
+            //    // 2 byte UTF-8 codepoint
+            //    if (((ptr [ 1 ] & 0xC0) ^ 0x80) != 0) { return codepoint; } //10xxxxxx checks
+            //    codepoint = ((0x1f & ptr [ 0 ]) << 6) | (0x3f & ptr [ 1 ]);
+            //    codepointSize = 2;
+            //}
+            //else if (0x00 == (0x80 & ptr [ 0 ]))
+            //{
+            //    // 1 byte UTF-8 codepoint
+            //    codepoint = ptr [ 0 ];
+            //    codepointSize = 1;
+            //}
 
 
-            return codepoint;
+            //return codepoint;
         }
         // Gui get text width considering icon
-        static int GetTextWidth(string text)
+        public static int GetTextWidth(string text)
         {
             Vector2 textSize = default;
             int textIconOffset = 0;
 
-            if ((text != null) && (text [ 0 ] != '\0'))
+            if ((text != null) && (text.Length > 0))
             {
                 if (text [ 0 ] == '#')
                 {
-                    for (int i = 1 ; (i < 5) && (text [ i ] != '\0') ; i++)
+                    for (int i = 1 ; (i < 5) && (i < text.Length) ; i++)
                     {
                         if (text [ i ] == '#')
                         {
@@ -697,20 +763,70 @@ namespace raygui_cs
                 if ((guiFont.texture.id > 0) && (text != null))
                 {
                     // Get size in bytes of text, considering end of line and line break
-                    int size = 0;
-                    for (int i = 0 ; i < MAX_LINE_BUFFER_SIZE ; i++)
-                    {
-                        if ((text [ i ] != '\0') && (text [ i ] != '\n')) size++;
-                        else break;
-                    }
+                    int size = text.Length;
 
                     float scaleFactor = fontSize / (float)guiFont.baseSize;
                     textSize.Y = (float)guiFont.baseSize * scaleFactor;
                     float glyphWidth = 0.0f;
 
-                    for (int i = 0, codepointSize = 0 ; i < size ; i += codepointSize)
+                    for (int i = 0, codepointSize = 1 ; i < size ; i += codepointSize)
                     {
-                        int codepoint = GetCodepointNext(text [ i.. ] , ref codepointSize);
+                        int codepoint = text [ i ];
+                        int codepointIndex = Raylib.GetGlyphIndex(guiFont , codepoint);
+                        unsafe
+                        {
+                            if (guiFont.glyphs [ codepointIndex ].advanceX == 0)
+                                glyphWidth = ((float)guiFont.recs [ codepointIndex ].width * scaleFactor + (float)GuiGetStyle(DEFAULT , TEXT_SPACING));
+                            else glyphWidth = ((float)guiFont.glyphs [ codepointIndex ].advanceX * scaleFactor + GuiGetStyle(DEFAULT , TEXT_SPACING));
+
+                        }
+
+                        textSize.X += glyphWidth;
+                    }
+                }
+
+                if (textIconOffset > 0) textSize.X += (RAYGUI_ICON_SIZE - ICON_TEXT_PADDING);
+            }
+
+            return (int)textSize.X;
+        }
+        static int GetTextWidth(ReadonlyString text)
+        {
+            Vector2 textSize = default;
+            int textIconOffset = 0;
+
+            if ((text.Ref != null) && (text.Length > 0))
+            {
+                if (text [ 0 ] == '#')
+                {
+                    for (int i = 1 ; (i < 5) && (i < text.Length) ; i++)
+                    {
+                        if (text [ i ] == '#')
+                        {
+                            textIconOffset = i;
+                            break;
+                        }
+                    }
+                }
+
+                text.Start += textIconOffset;
+
+                // Make sure guiFont is set, GuiGetStyle() initializes it lazynessly
+                float fontSize = (float)GuiGetStyle(DEFAULT , TEXT_SIZE);
+
+                // Custom MeasureText() implementation
+                if ((guiFont.texture.id > 0) && (text.Ref != null))
+                {
+                    // Get size in bytes of text, considering end of line and line break
+                    int size = text.Length;
+
+                    float scaleFactor = fontSize / (float)guiFont.baseSize;
+                    textSize.Y = (float)guiFont.baseSize * scaleFactor;
+                    float glyphWidth = 0.0f;
+
+                    for (int i = 0, codepointSize = 1 ; i < size ; i += codepointSize)
+                    {
+                        int codepoint = text [ i ];
                         int codepointIndex = Raylib.GetGlyphIndex(guiFont , codepoint);
                         unsafe
                         {
@@ -745,7 +861,7 @@ namespace raygui_cs
 
             return value * sign;
         }
-        public static string GetTextIcon(string text , ref int iconId)
+        public static ReadonlyString GetTextIcon(ReadonlyString text , ref int iconId)
         {
             iconId = -1;
             if (text [ 0 ] == '#')     // Maybe we have an icon!
@@ -765,13 +881,17 @@ namespace raygui_cs
 
                     // Move text pointer after icon
                     // WARNING: If only icon provided, it could point to EOL character: '\0'
-                    if (iconId >= 0) text += (pos + 1);
+                    if (iconId >= 0)
+                    {
+                        text.Start += (pos + 1);
+                        text.Length -= (pos + 1);
+                    }
                 }
             }
 
             return text;
         }
-        public static uint [ ] guiIconsPtr = guiIcons;
+        public static uint [ ] guiIconsPtr;
         public static bool BIT_CHECK(int a , int b) => ((a) & (1u << (b))) != 0;
         public static bool BIT_CHECK(uint a , int b) => ((a) & (1u << (b))) != 0;
         public static void GuiDrawIcon(int iconId , int posX , int posY , int pixelSize , Color color)
@@ -804,7 +924,11 @@ namespace raygui_cs
                 // GuiDrawText() and static buffer would be overriden :(
                 int lineCount = 0;
                 //const char** lines = GetTextLines(text , &lineCount);
-                string [ ] lines = text.Split('\n');
+                //string [ ] lines = text.Split('\n');
+                text.AsSpan();
+                ReadOnlySpan<char> chars = text;
+                var lines = chars.SplitSingleChar('\n');
+                lineCount = lines.Item1;
                 //Rectangle textBounds = GetTextBounds(LABEL, bounds);
                 float totalHeight = (float)(lineCount * GuiGetStyle(DEFAULT , TEXT_SIZE) + (lineCount - 1) * GuiGetStyle(DEFAULT , TEXT_SIZE) / 2);
                 float posOffsetY = 0;
@@ -812,7 +936,8 @@ namespace raygui_cs
                 for (int i = 0 ; i < lineCount ; i++)
                 {
                     int iconId = 0;
-                    lines [ i ] = GetTextIcon(lines [ i ] , ref iconId);      // Check text for icon and move cursor
+                    ReadonlyString Line = new ReadonlyString { Ref = text , Start = lines.Item2 [ i ].Item1 , Length = lines.Item2 [ i ].Item2 };
+                    Line = GetTextIcon(Line , ref iconId);      // Check text for icon and move cursor
 
                     // Get text position depending on alignment and iconId
                     //---------------------------------------------------------------------------------
@@ -820,7 +945,7 @@ namespace raygui_cs
 
                     // NOTE: We get text size after icon has been processed
                     // WARNING: GetTextWidth() also processes text icon to get width! -> Really needed?
-                    int textSizeX = GetTextWidth(lines [ i ]);
+                    int textSizeX = GetTextWidth(Line);
 
                     // If text requires an icon, add size to measure
                     if (iconId >= 0)
@@ -828,7 +953,7 @@ namespace raygui_cs
                         textSizeX += RAYGUI_ICON_SIZE * (int)guiIconScale;
 
                         // WARNING: If only icon provided, text could be pointing to EOF character: '\0'
-                        if ((lines [ i ] != null) && (lines [ i ] [ 0 ] != '\0')) textSizeX += ICON_TEXT_PADDING;
+                        if ((Line.Ref != null) && (Line.Length > 0)) textSizeX += ICON_TEXT_PADDING;
                     }
 
                     // Check guiTextAlign global variables
@@ -868,20 +993,20 @@ namespace raygui_cs
 
                     // Get size in bytes of text,
                     // considering end of line and line break
-                    int size = 0;
-                    for (int c = 0 ; (lines [ i ] [ c ] != '\0') && (lines [ i ] [ c ] != '\n') ; c++, size++) { }
+                    int size = Line.Length;
+                    //for (int c = 0 ; (c<lines.Length) && (lines [ i ] [ c ] != '\n') ; c++, size++) { }
                     float scaleFactor = (float)GuiGetStyle(DEFAULT , TEXT_SIZE) / guiFont.baseSize;
 
                     int textOffsetY = 0;
                     float textOffsetX = 0.0f;
-                    for (int c = 0, codepointSize = 0 ; c < size ; c += codepointSize)
+                    for (int c = 0 ; c < size ; c++)
                     {
-                        int codepoint = GetCodepointNext(lines [ i ] [ c.. ] , ref codepointSize);
+                        int codepoint = Line [ c ];
                         int index = Raylib.GetGlyphIndex(guiFont , codepoint);
 
                         // NOTE: Normally we exit the decoding sequence as soon as a bad byte is found (and return 0x3f)
                         // but we need to draw all of the bad bytes using the '?' symbol moving one byte
-                        if (codepoint == 0x3f) codepointSize = 1;
+                        //if (codepoint == 0x3f) codepointSize = 1;
 
                         if (codepoint == '\n') break;   // WARNING: Lines are already processed manually, no need to keep drawing after this codepoint
                         else
@@ -930,7 +1055,131 @@ namespace raygui_cs
             //--------------------------------------------------------------------
         }
 
-        static void GuiSetStyle(int control , int property , uint value)
+        // Button control, returns true when clicked
+        public static bool GuiButton(Rectangle bounds , string text)
+        {
+            int state = (int)guiState;
+            bool pressed = false;
+
+            // Update control
+            //--------------------------------------------------------------------
+            if ((state != STATE_DISABLED) && !guiLocked && !guiSliderDragging)
+            {
+                Vector2 mousePoint = Raylib.GetMousePosition();
+
+                // Check button state
+                if (Raylib.CheckCollisionPointRec(mousePoint , bounds))
+                {
+                    if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON)) state = STATE_PRESSED;
+                    else state = STATE_FOCUSED;
+
+                    if (Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON)) pressed = true;
+                }
+            }
+            //--------------------------------------------------------------------
+
+            // Draw control
+            //--------------------------------------------------------------------
+            GuiDrawRectangle(bounds ,
+                             (int)GuiGetStyle(BUTTON , BORDER_WIDTH) ,
+                             Fade(GetColor(GuiGetStyle(BUTTON , BORDER + (state * 3))) , guiAlpha) ,
+                             Fade(GetColor(GuiGetStyle(BUTTON , BASE + (state * 3))) , guiAlpha));
+            GuiDrawText(text ,
+                        GetTextBounds(BUTTON , bounds) ,
+                        (int)GuiGetStyle(BUTTON , TEXT_ALIGNMENT) ,
+                        Fade(GetColor(GuiGetStyle(BUTTON , TEXT + (state * 3))) , guiAlpha));
+
+            if (state == STATE_FOCUSED) GuiTooltip(bounds);
+            //------------------------------------------------------------------
+
+            return pressed;
+        }
+
+        public static Font GuiGetFont()
+        {
+            return guiFont;
+        }
+
+        // Panel control
+        public static void GuiPanel(Rectangle bounds , string text)
+        {
+            GuiState state = guiState;
+
+            // Text will be drawn as a header bar (if provided)
+            Rectangle statusBar = new Rectangle(bounds.x , bounds.y , bounds.width , (float)RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT);
+            if ((text != null) && (bounds.height < RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT * 2.0f)) bounds.height = RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT * 2.0f;
+
+            if (text != null)
+            {
+                // Move panel bounds after the header bar
+                bounds.y += (float)RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT - 1;
+                bounds.height -= (float)RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + 1;
+            }
+
+            // Draw control
+            //--------------------------------------------------------------------
+            if (text != null) GuiStatusBar(statusBar , text);  // Draw panel header as status bar
+
+            GuiDrawRectangle(bounds ,
+                             RAYGUI_PANEL_BORDER_WIDTH ,
+                             Fade(GetColor(GuiGetStyle(DEFAULT , ((int)state == STATE_DISABLED) ? BORDER_COLOR_DISABLED : LINE_COLOR)) , guiAlpha) ,
+                             Fade(GetColor(GuiGetStyle(DEFAULT , ((int)state == STATE_DISABLED) ? BASE_COLOR_DISABLED : BACKGROUND_COLOR)) , guiAlpha));
+            //--------------------------------------------------------------------
+        }
+
+        // Status Bar control
+        public static void GuiStatusBar(Rectangle bounds , string text)
+        {
+            GuiState state = guiState;
+
+            // Draw control
+            //--------------------------------------------------------------------
+            GuiDrawRectangle(bounds , (int)GuiGetStyle(STATUSBAR , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(STATUSBAR , ((int)state != STATE_DISABLED) ? BORDER_COLOR_NORMAL : BORDER_COLOR_DISABLED)) , guiAlpha) ,
+                             Fade(GetColor(GuiGetStyle(STATUSBAR , ((int)state != STATE_DISABLED) ? BASE_COLOR_NORMAL : BASE_COLOR_DISABLED)) , guiAlpha));
+            GuiDrawText(text , GetTextBounds(STATUSBAR , bounds) , (int)GuiGetStyle(STATUSBAR , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(STATUSBAR , ((int)state != STATE_DISABLED) ? TEXT_COLOR_NORMAL : TEXT_COLOR_DISABLED)) , guiAlpha));
+            //--------------------------------------------------------------------
+        }
+
+        // Draw tooltip using control bounds
+        public static void GuiTooltip(Rectangle controlRec)
+        {
+            if (!guiLocked && guiTooltip && (guiTooltipPtr != null) && !guiSliderDragging)
+            {
+                Vector2 textSize = Raylib.MeasureTextEx(GuiGetFont() , guiTooltipPtr , GuiGetStyle(DEFAULT , TEXT_SIZE) , GuiGetStyle(DEFAULT , TEXT_SPACING));
+
+                if ((controlRec.x + textSize.X + 16) > Raylib.GetScreenWidth()) controlRec.x -= (textSize.X + 16 - controlRec.width);
+
+                GuiPanel(new Rectangle(controlRec.x , controlRec.y + controlRec.height + 4 , textSize.Y + 16 , GuiGetStyle(DEFAULT , TEXT_SIZE) + 8.0f) , null);
+
+                uint textPadding = GuiGetStyle(LABEL , TEXT_PADDING);
+                uint textAlignment = GuiGetStyle(LABEL , TEXT_ALIGNMENT);
+                GuiSetStyle(LABEL , TEXT_PADDING , 0);
+                GuiSetStyle(LABEL , TEXT_ALIGNMENT , TEXT_ALIGN_CENTER);
+                GuiLabel(new Rectangle(controlRec.x , controlRec.y + controlRec.height + 4 , textSize.X + 16 , GuiGetStyle(DEFAULT , TEXT_SIZE) + 8.0f) , guiTooltipPtr);
+                GuiSetStyle(LABEL , TEXT_ALIGNMENT , textAlignment);
+                GuiSetStyle(LABEL , TEXT_PADDING , textPadding);
+            }
+        }
+        // Gui draw rectangle using default raygui plain style with borders
+        public static void GuiDrawRectangle(Rectangle rec , int borderWidth , Color borderColor , Color color)
+        {
+            if (color.a > 0)
+            {
+                // Draw rectangle filled with color
+                Raylib.DrawRectangle((int)rec.x , (int)rec.y , (int)rec.width , (int)rec.height , color);
+            }
+
+            if (borderWidth > 0)
+            {
+                // Draw rectangle border lines with color
+                Raylib.DrawRectangle((int)rec.x , (int)rec.y , (int)rec.width , borderWidth , borderColor);
+                Raylib.DrawRectangle((int)rec.x , (int)rec.y + borderWidth , borderWidth , (int)rec.height - 2 * borderWidth , borderColor);
+                Raylib.DrawRectangle((int)rec.x + (int)rec.width - borderWidth , (int)rec.y + borderWidth , borderWidth , (int)rec.height - 2 * borderWidth , borderColor);
+                Raylib.DrawRectangle((int)rec.x , (int)rec.y + (int)rec.height - borderWidth , (int)rec.width , borderWidth , borderColor);
+            }
+        }
+
+        public static void GuiSetStyle(int control , int property , uint value)
         {
             if (!guiStyleLoaded) GuiLoadStyleDefault();
             guiStyle [ control * (RAYGUI_MAX_PROPS_BASE + RAYGUI_MAX_PROPS_EXTENDED) + property ] = value;
@@ -941,7 +1190,7 @@ namespace raygui_cs
                 for (int i = 1 ; i < RAYGUI_MAX_CONTROLS ; i++) guiStyle [ i * (RAYGUI_MAX_PROPS_BASE + RAYGUI_MAX_PROPS_EXTENDED) + property ] = value;
             }
         }
-        static void GuiLoadStyleDefault()
+        public static void GuiLoadStyleDefault()
         {
             // We set this variable first to avoid cyclic function calls
             // when calling GuiSetStyle() and GuiGetStyle()
@@ -1035,7 +1284,7 @@ namespace raygui_cs
             }
         }
 
-        static uint GuiGetStyle(int control , int property)
+        public static uint GuiGetStyle(int control , int property)
         {
             if (!guiStyleLoaded) GuiLoadStyleDefault();
             return guiStyle [ control * (RAYGUI_MAX_PROPS_BASE + RAYGUI_MAX_PROPS_EXTENDED) + property ];
