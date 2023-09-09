@@ -31,7 +31,7 @@ namespace raygui_cs
                     if (c == item)
                     {
                         HitCount++;
-                        ranges [ HitCount - 1 ] = (LastHit + 1, i - LastHit + 1);
+                        ranges [ HitCount - 1 ] = (LastHit + 1, i - LastHit-1);
                         LastHit = i;
                     }
                 }
@@ -48,7 +48,7 @@ namespace raygui_cs
         /// </summary>
         /// <param name="input"></param>
         /// <param name="separators"></param>
-        /// <returns></returns>
+        /// <returns>(Count,(Start,Length)[])</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (int, (int, int) [ ]) SplitSingleChar(this ReadOnlySpan<char> input , char item)
         {
@@ -63,7 +63,7 @@ namespace raygui_cs
                     if (c == item)
                     {
                         HitCount++;
-                        ranges [ HitCount - 1 ] = (LastHit + 1, i - 1);
+                        ranges [ HitCount - 1 ] = (LastHit + 1, i - LastHit-1);
                         LastHit = i;
                     }
                 }
