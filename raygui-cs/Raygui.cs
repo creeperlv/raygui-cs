@@ -8,6 +8,8 @@ using System.Text.Json.Nodes;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Metrics;
+using raygui_cs;
+using System.Diagnostics;
 
 namespace raygui_cs
 {//----------------------------------------------------------------------------------
@@ -566,6 +568,11 @@ namespace raygui_cs
         public static bool RAYGUI_NO_ICONS = false;
         public static int AUTO_CURSOR_COOLDOWN = 40;        // Frames to wait for autocursor movement
         public static int AUTO_CURSOR_DELAY = 1;       // Frames delay for autocursor movement
+        public static int RAYGUI_TEXTINPUTBOX_BUTTON_HEIGHT = 24;
+        public static int RAYGUI_TEXTINPUTBOX_BUTTON_PADDING = 12;
+        public static int RAYGUI_TEXTINPUTBOX_HEIGHT = 26;
+        public static int RAYGUI_MESSAGEBOX_BUTTON_HEIGHT = 24;
+        public static int RAYGUI_MESSAGEBOX_BUTTON_PADDING = 12;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int TEXT_VALIGN_PIXEL_OFFSET(int h) => ((int)h % 2);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1191,7 +1198,7 @@ namespace raygui_cs
         }
         // Text Box control
         // NOTE: Returns true on ENTER pressed (useful for data validation)
-        public static bool GuiTextBox(Rectangle bounds , string text , int bufferSize , bool editMode)
+        public static bool GuiTextBox(Rectangle bounds , ref string text , int bufferSize , bool editMode)
         {
 
             GuiState state = guiState;
@@ -1252,19 +1259,21 @@ namespace raygui_cs
                     // we add an index offset to text for drawing only what requires depending on cursor
                     while (textWidth >= textBounds.width)
                     {
-                        int nextCodepointSize = 0;
+                        //int nextCodepointSize = 0;
 
                         textIndexOffset += 1;
-                        var STR=(ReadonlyString)(text);
-                        STR.Start+=textIndexOffset;
-                        var STR2=(ReadonlyString)(text);
-                        STR2.Start+=(int)textBoxCursorIndex;
+                        var STR = (ReadonlyString)(text);
+                        STR.Start += textIndexOffset;
+                        STR.Length -= textIndexOffset;
+                        var STR2 = (ReadonlyString)(text);
+                        STR2.Start += (int)textBoxCursorIndex;
+                        STR2.Length -= (int)textBoxCursorIndex;
                         textWidth = GetTextWidth(STR) - GetTextWidth(STR2);
                     }
 
                     int textLength = text.Length;     // Get current text length
                     int input_char = Raylib.GetCharPressed();       // Get Unicode codepoint
-                    if (multiline!=0 && Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER)) input_char = (int)'\n';
+                    if (multiline != 0 && Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER)) input_char = (int)'\n';
 
                     if (textBoxCursorIndex > textLength) textBoxCursorIndex = (uint)textLength;
 
@@ -1274,12 +1283,12 @@ namespace raygui_cs
 
                     // Add codepoint to text, at current cursor position
                     // NOTE: Make sure we do not overflow buffer size
-                    if (((multiline!=0 && (input_char == (int)'\n')) || (input_char >= 32)) && ((textLength + codepointSize) < bufferSize))
+                    if (((multiline != 0 && (input_char == (int)'\n')) || (input_char >= 32)) && ((textLength + codepointSize) < bufferSize))
                     {
                         // Move forward data from cursor position
                         //for (int i = (textLength + codepointSize) ; i > textBoxCursorIndex ; i--) text [ i ] = text [ i - codepointSize ];
                         //text=text.Remove(textLength + codepointSize,1);
-                        text=text.Insert((int)textBoxCursorIndex,input_char+"");
+                        text = text.Insert((int)textBoxCursorIndex , ((char)input_char).ToString());
                         // Add new codepoint in current cursor position
                         //for (int i = 0 ; i < codepointSize ; i++) text [ textBoxCursorIndex + i ] = charEncoded [ i ];
 
@@ -1301,7 +1310,7 @@ namespace raygui_cs
                     }
 
                     // Delete codepoint from text, after current cursor position
-                    if ((textLength > textBoxCursorIndex) && (Raylib.IsKeyPressed(KeyboardKey.KEY_DELETE) 
+                    if ((textLength > textBoxCursorIndex) && (Raylib.IsKeyPressed(KeyboardKey.KEY_DELETE)
                         || (Raylib.IsKeyDown(KeyboardKey.KEY_DELETE) && (autoCursorCooldownCounter >= AUTO_CURSOR_COOLDOWN))))
                     {
                         autoCursorDelayCounter++;
@@ -1310,7 +1319,7 @@ namespace raygui_cs
                         {
                             //int nextCodepointSize = 0;
                             //GetCodepointNext(text + textBoxCursorIndex , &nextCodepointSize);
-                            text=text.Remove((int)textBoxCursorIndex,1);
+                            text = text.Remove((int)textBoxCursorIndex , 1);
                             // Move backward text from cursor position
                             //for (int i = textBoxCursorIndex ; i < textLength ; i++) text [ i ] = text [ i + nextCodepointSize ];
 
@@ -1322,7 +1331,7 @@ namespace raygui_cs
                     }
 
                     // Delete codepoint from text, before current cursor position
-                    if ((textLength > 0) && (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE) 
+                    if ((textLength > 0) && (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE)
                         || (Raylib.IsKeyDown(KeyboardKey.KEY_BACKSPACE) && (autoCursorCooldownCounter >= AUTO_CURSOR_COOLDOWN))))
                     {
                         autoCursorDelayCounter++;
@@ -1334,7 +1343,7 @@ namespace raygui_cs
 
                             //// Move backward text from cursor position
                             //for (int i = (textBoxCursorIndex - prevCodepointSize) ; i < textLength ; i++) text [ i ] = text [ i + prevCodepointSize ];
-                            text=text.Remove((int)textBoxCursorIndex -1,1);
+                            text = text.Remove((int)textBoxCursorIndex - 1 , 1);
                             // Prevent cursor index from decrementing past 0
                             if (textBoxCursorIndex > 0)
                             {
@@ -1355,7 +1364,8 @@ namespace raygui_cs
 
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_LEFT) || (autoCursorDelayCounter % AUTO_CURSOR_DELAY) == 0)      // Delay every movement some frames
                         {
-                            textBoxCursorIndex -=1;
+                            if (textBoxCursorIndex > 0)
+                                textBoxCursorIndex -= 1;
                             //int prevCodepointSize = 0;
                             //GetCodepointPrevious(text + textBoxCursorIndex , &prevCodepointSize);
 
@@ -1368,7 +1378,8 @@ namespace raygui_cs
 
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_RIGHT) || (autoCursorDelayCounter % AUTO_CURSOR_DELAY) == 0)      // Delay every movement some frames
                         {
-                            textBoxCursorIndex +=1;
+                            textBoxCursorIndex += 1;
+                            if (textBoxCursorIndex >= textLength) textBoxCursorIndex = (uint)textLength;
                             //int nextCodepointSize = 0;
                             //GetCodepointNext(text + textBoxCursorIndex , &nextCodepointSize);
 
@@ -1383,11 +1394,18 @@ namespace raygui_cs
                     //cursor = GetCursorFromIndex(bounds, text, index);         // Gui style considered internally, including wrapMode
 
                     // Recalculate cursor position.y depending on textBoxCursorIndex
-                    cursor.x = bounds.x + GuiGetStyle(TEXTBOX , TEXT_PADDING) + GetTextWidth(text + textIndexOffset) - GetTextWidth(text + textBoxCursorIndex) + GuiGetStyle(DEFAULT , TEXT_SPACING);
+                    ReadonlyString _text0 = text;
+                    _text0.Start += textIndexOffset;
+                    _text0.Length -= textIndexOffset;
+                    ReadonlyString _text1 = text;
+                    _text1.Start += (int)textBoxCursorIndex;
+                    _text1.Length -= (int)textBoxCursorIndex;
+                    cursor.x = bounds.x + GuiGetStyle(TEXTBOX , TEXT_PADDING) +
+                        GetTextWidth(_text0) - GetTextWidth(_text1) + GuiGetStyle(DEFAULT , TEXT_SPACING);
                     //if (multiline) cursor.y = GetTextLines()
 
                     // Finish text editing on ENTER (if not multiline mode) or mouse click outside bounds
-                    if ((multiline ==0&& Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER)) ||
+                    if ((multiline == 0 && Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER)) ||
                         (!CheckCollisionPointRec(mousePoint , bounds) && Raylib.IsMouseButtonPressed(MouseButton.MOUSE_LEFT_BUTTON)))
                     {
                         pressed = true;             // Exiting edit mode
@@ -1403,7 +1421,7 @@ namespace raygui_cs
                         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_LEFT_BUTTON))
                         {
                             pressed = true;         // Entering edit mode
-                            textBoxCursorIndex =(uint) text.Length;   // GLOBAL: Place cursor index to the end of current text
+                            textBoxCursorIndex = (uint)text.Length;   // GLOBAL: Place cursor index to the end of current text
                         }
                     }
                 }
@@ -1412,25 +1430,29 @@ namespace raygui_cs
 
             // Draw control
             //--------------------------------------------------------------------
-            if (state ==GuiState. STATE_PRESSED)
+            if (state == GuiState.STATE_PRESSED)
             {
-                GuiDrawRectangle(bounds ,(int) GuiGetStyle(TEXTBOX , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TEXTBOX , BORDER + ((int)state * 3))) , guiAlpha) , Fade(GetColor(GuiGetStyle(TEXTBOX , BASE_COLOR_PRESSED)) , guiAlpha));
+                GuiDrawRectangle(bounds , (int)GuiGetStyle(TEXTBOX , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TEXTBOX , BORDER + ((int)state * 3))) , guiAlpha) , Fade(GetColor(GuiGetStyle(TEXTBOX , BASE_COLOR_PRESSED)) , guiAlpha));
             }
-            else if (state == GuiState. STATE_DISABLED)
+            else if (state == GuiState.STATE_DISABLED)
             {
                 GuiDrawRectangle(bounds , (int)GuiGetStyle(TEXTBOX , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TEXTBOX , BORDER + ((int)state * 3))) , guiAlpha) , Fade(GetColor(GuiGetStyle(TEXTBOX , BASE_COLOR_DISABLED)) , guiAlpha));
             }
-            else GuiDrawRectangle(bounds ,(int) GuiGetStyle(TEXTBOX , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TEXTBOX , BORDER + ((int)state * 3))) , guiAlpha) , Color.BLANK);
+            else GuiDrawRectangle(bounds , (int)GuiGetStyle(TEXTBOX , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TEXTBOX , BORDER + ((int)state * 3))) , guiAlpha) , Color.BLANK);
 
             // Draw text considering index offset if required
             // NOTE: Text index offset depends on cursor position
-            GuiDrawText(text + textIndexOffset , textBounds , (int)GuiGetStyle(TEXTBOX , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(TEXTBOX , TEXT + ((int)state * 3))) , guiAlpha));
+            //textIndexOffset
+            var t = (ReadonlyString)text;
+            t.Start = textIndexOffset;
+            t.Length -= textIndexOffset;
+            GuiDrawText(t , textBounds , (int)GuiGetStyle(TEXTBOX , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(TEXTBOX , TEXT + ((int)state * 3))) , guiAlpha));
 
             // Draw cursor
             if (editMode)
             {
                 //if (autoCursorMode || ((blinkCursorFrameCounter/40)%2 == 0))
-                GuiDrawRectangle(cursor , 0 ,Color. BLANK , Fade(GetColor(GuiGetStyle(TEXTBOX , BORDER_COLOR_PRESSED)) , guiAlpha));
+                GuiDrawRectangle(cursor , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(TEXTBOX , BORDER_COLOR_PRESSED)) , guiAlpha));
             }
             else if (state == GuiState.STATE_FOCUSED) GuiTooltip(bounds);
             //--------------------------------------------------------------------
@@ -1438,6 +1460,134 @@ namespace raygui_cs
             return pressed;
         }
 
+        // Slider control with pro parameters
+        // NOTE: Other GuiSlider*() controls use this one
+        public static float GuiSliderPro(Rectangle bounds , ReadonlyString textLeft , ReadonlyString textRight , float value , float minValue , float maxValue , int sliderWidth)
+        {
+            GuiState state = guiState;
+
+            int sliderValue = (int)(((value - minValue) / (maxValue - minValue)) * (bounds.width - 2 * GuiGetStyle(SLIDER , BORDER_WIDTH)));
+
+            Rectangle slider = new Rectangle(bounds.x , bounds.y + GuiGetStyle(SLIDER , BORDER_WIDTH) + GuiGetStyle(SLIDER , SLIDER_PADDING) ,
+                                 0 , bounds.height - 2 * GuiGetStyle(SLIDER , BORDER_WIDTH) - 2 * GuiGetStyle(SLIDER , SLIDER_PADDING));
+
+            if (sliderWidth > 0)        // Slider
+            {
+                slider.x += (sliderValue - sliderWidth / 2);
+                slider.width = (float)sliderWidth;
+            }
+            else if (sliderWidth == 0)  // SliderBar
+            {
+                slider.x += GuiGetStyle(SLIDER , BORDER_WIDTH);
+                slider.width = (float)sliderValue;
+            }
+
+            // Update control
+            //--------------------------------------------------------------------
+            if ((state != GuiState.STATE_DISABLED) && !guiLocked)
+            {
+                Vector2 mousePoint = Raylib.GetMousePosition();
+
+                if (guiSliderDragging) // Keep dragging outside of bounds
+                {
+                    if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
+                    {
+                        if (CHECK_BOUNDS_ID(bounds , guiSliderActive))
+                        {
+                            // Get equivalent value and slider position from mousePoint.x
+                            value = ((maxValue - minValue) * (mousePoint.X - (float)(bounds.x + sliderWidth / 2))) / (float)(bounds.width - sliderWidth) + minValue;
+                        }
+                    }
+                    else
+                    {
+                        guiSliderDragging = false;
+                        guiSliderActive = new Rectangle(0 , 0 , 0 , 0);
+                    }
+                }
+                else if (CheckCollisionPointRec(mousePoint , bounds))
+                {
+                    if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
+                    {
+                        state = GuiState.STATE_PRESSED;
+                        guiSliderDragging = true;
+                        guiSliderActive = bounds; // Store bounds as an identifier when dragging starts
+
+                        // Get equivalent value and slider position from mousePoint.x
+                        value = ((maxValue - minValue) * (mousePoint.X - (float)(bounds.x + sliderWidth / 2))) / (float)(bounds.width - sliderWidth) + minValue;
+
+                        if (sliderWidth > 0) slider.x = mousePoint.X - slider.width / 2;  // Slider
+                        else if (sliderWidth == 0) slider.width = (float)sliderValue;          // SliderBar
+                    }
+                    else state = GuiState.STATE_FOCUSED;
+                }
+
+                if (value > maxValue) value = maxValue;
+                else if (value < minValue) value = minValue;
+            }
+
+            // Bar limits check
+            if (sliderWidth > 0)        // Slider
+            {
+                if (slider.x <= (bounds.x + GuiGetStyle(SLIDER , BORDER_WIDTH))) slider.x = bounds.x + GuiGetStyle(SLIDER , BORDER_WIDTH);
+                else if ((slider.x + slider.width) >= (bounds.x + bounds.width)) slider.x = bounds.x + bounds.width - slider.width - GuiGetStyle(SLIDER , BORDER_WIDTH);
+            }
+            else if (sliderWidth == 0)  // SliderBar
+            {
+                if (slider.width > bounds.width) slider.width = bounds.width - 2 * GuiGetStyle(SLIDER , BORDER_WIDTH);
+            }
+            //--------------------------------------------------------------------
+
+            // Draw control
+            //--------------------------------------------------------------------
+            GuiDrawRectangle(bounds ,
+                             (int)GuiGetStyle(SLIDER , BORDER_WIDTH) ,
+                             Fade(GetColor(GuiGetStyle(SLIDER , BORDER + ((int)state * 3))) , guiAlpha) ,
+                             Fade(GetColor(GuiGetStyle(SLIDER , (state != GuiState.STATE_DISABLED) ? BASE_COLOR_NORMAL : BASE_COLOR_DISABLED)) , guiAlpha));
+
+            // Draw slider internal bar (depends on state)
+            if ((state == STATE_NORMAL) || (state == GuiState.STATE_PRESSED)) GuiDrawRectangle(slider , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(SLIDER , BASE_COLOR_PRESSED)) , guiAlpha));
+            else if (state == GuiState.STATE_FOCUSED) GuiDrawRectangle(slider , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(SLIDER , TEXT_COLOR_FOCUSED)) , guiAlpha));
+
+            // Draw left/right text if provided
+            if (textLeft.Ref != null)
+            {
+                Rectangle textBounds = new Rectangle(0 , 0 , 0 , 0);
+                textBounds.width = (float)GetTextWidth(textLeft);
+                textBounds.height = (float)GuiGetStyle(DEFAULT , TEXT_SIZE);
+                textBounds.x = bounds.x - textBounds.width - GuiGetStyle(SLIDER , TEXT_PADDING);
+                textBounds.y = bounds.y + bounds.height / 2 - GuiGetStyle(DEFAULT , TEXT_SIZE) / 2;
+
+                GuiDrawText(textLeft , textBounds , TEXT_ALIGN_RIGHT , Fade(GetColor(GuiGetStyle(SLIDER , TEXT + ((int)state * 3))) , guiAlpha));
+            }
+
+            if (textRight.Ref != null)
+            {
+                Rectangle textBounds = new Rectangle(0 , 0 , 0 , 0);
+                textBounds.width = (float)GetTextWidth(textRight);
+                textBounds.height = (float)GuiGetStyle(DEFAULT , TEXT_SIZE);
+                textBounds.x = bounds.x + bounds.width + GuiGetStyle(SLIDER , TEXT_PADDING);
+                textBounds.y = bounds.y + bounds.height / 2 - GuiGetStyle(DEFAULT , TEXT_SIZE) / 2;
+
+                GuiDrawText(textRight , textBounds , TEXT_ALIGN_LEFT , Fade(GetColor(GuiGetStyle(SLIDER , TEXT + ((int)state * 3))) , guiAlpha));
+            }
+            //--------------------------------------------------------------------
+
+            return value;
+        }
+
+        // Slider control extended, returns selected value and has text
+        public static float GuiSlider(Rectangle bounds , ReadonlyString textLeft , ReadonlyString textRight , float value , float minValue , float maxValue)
+        {
+            return GuiSliderPro(bounds , textLeft , textRight , value , minValue , maxValue , (int)GuiGetStyle(SLIDER , SLIDER_WIDTH));
+        }
+
+        // Slider Bar control extended, returns selected value
+        public static float GuiSliderBar(Rectangle bounds , ReadonlyString textLeft , ReadonlyString textRight , float value , float minValue , float maxValue)
+        {
+            return GuiSliderPro(bounds , textLeft , textRight , value , minValue , maxValue , 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GuiDrawText(ReadonlyString? text , Rectangle bounds , int alignment , Color tint)
         {
 
@@ -1708,7 +1858,7 @@ namespace raygui_cs
                 }
             }
         }
-        public static void GuiLabel(Rectangle bounds , string text)
+        public static void GuiLabel(Rectangle bounds , ReadonlyString text)
         {
             GuiState state = guiState;
 
@@ -2469,6 +2619,369 @@ namespace raygui_cs
             //--------------------------------------------------------------------
 
             return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // Progress Bar control extended, shows current progress value
+        public static float GuiProgressBar(Rectangle bounds , ReadonlyString textLeft , ReadonlyString textRight , float value , float minValue , float maxValue)
+        {
+            GuiState state = guiState;
+
+            Rectangle progress = new Rectangle(bounds.x + GuiGetStyle(PROGRESSBAR , BORDER_WIDTH) ,
+                                   bounds.y + GuiGetStyle(PROGRESSBAR , BORDER_WIDTH) + GuiGetStyle(PROGRESSBAR , PROGRESS_PADDING) , 0 ,
+                                   bounds.height - 2 * GuiGetStyle(PROGRESSBAR , BORDER_WIDTH) - 2 * GuiGetStyle(PROGRESSBAR , PROGRESS_PADDING));
+
+            // Update control
+            //--------------------------------------------------------------------
+            if (value > maxValue) value = maxValue;
+
+            if (state != GuiState.STATE_DISABLED) progress.width = ((float)(value / (maxValue - minValue)) * (float)(bounds.width - 2 * GuiGetStyle(PROGRESSBAR , BORDER_WIDTH)));
+            //--------------------------------------------------------------------
+
+            // Draw control
+            //--------------------------------------------------------------------
+            GuiDrawRectangle(bounds , (int)GuiGetStyle(PROGRESSBAR , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(PROGRESSBAR , BORDER + ((int)state * 3))) , guiAlpha) , Color.BLANK);
+
+            // Draw slider internal progress bar (depends on state)
+            if ((state == STATE_NORMAL) || (state == GuiState.STATE_PRESSED)) GuiDrawRectangle(progress , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(PROGRESSBAR , BASE_COLOR_PRESSED)) , guiAlpha));
+            else if (state == GuiState.STATE_FOCUSED) GuiDrawRectangle(progress , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(PROGRESSBAR , TEXT_COLOR_FOCUSED)) , guiAlpha));
+
+            // Draw left/right text if provided
+            if (textLeft.Ref != null)
+            {
+                Rectangle textBounds = new Rectangle(0 , 0 , 0 , 0);
+                textBounds.width = (float)GetTextWidth(textLeft);
+                textBounds.height = (float)GuiGetStyle(DEFAULT , TEXT_SIZE);
+                textBounds.x = bounds.x - textBounds.width - GuiGetStyle(PROGRESSBAR , TEXT_PADDING);
+                textBounds.y = bounds.y + bounds.height / 2 - GuiGetStyle(DEFAULT , TEXT_SIZE) / 2;
+
+                GuiDrawText(textLeft , textBounds , TEXT_ALIGN_RIGHT , Fade(GetColor(GuiGetStyle(PROGRESSBAR , TEXT + ((int)state * 3))) , guiAlpha));
+            }
+
+            if (textRight.Ref != null)
+            {
+                Rectangle textBounds = new Rectangle(0 , 0 , 0 , 0);
+                textBounds.width = (float)GetTextWidth(textRight);
+                textBounds.height = (float)GuiGetStyle(DEFAULT , TEXT_SIZE);
+                textBounds.x = bounds.x + bounds.width + GuiGetStyle(PROGRESSBAR , TEXT_PADDING);
+                textBounds.y = bounds.y + bounds.height / 2 - GuiGetStyle(DEFAULT , TEXT_SIZE) / 2;
+
+                GuiDrawText(textRight , textBounds , TEXT_ALIGN_LEFT , Fade(GetColor(GuiGetStyle(PROGRESSBAR , TEXT + ((int)state * 3))) , guiAlpha));
+            }
+            //--------------------------------------------------------------------
+
+            return value;
+        }
+
+        // List View control
+        public static int GuiListView(Rectangle bounds , ReadonlyString text , ref int scrollIndex , int active)
+        {
+            int itemCount = 0;
+            ReadonlyString [ ] items;
+            if (text.Length > 0)
+            {
+                var result = text.AsReadOnlySpan().SplitSingleChar(';');
+                items = new ReadonlyString [ result.Item1 ];
+                for (int i = 0 ; i < result.Item1 ; i++)
+                {
+                    items [ i ] = text;
+                    items [ i ].Start = result.Item2 [ i ].Item1;
+                    items [ i ].Length = result.Item2 [ i ].Item2;
+                }
+                itemCount = result.Item1;
+            }
+            else
+            {
+                items = new ReadonlyString [ 0 ];
+            }
+            //if (text != NULL) items = GuiTextSplit(text , ';' , &itemCount , NULL);
+            int f = -1;
+            return GuiListViewEx(bounds , items , itemCount , ref f , ref scrollIndex , active);
+        }
+
+        // Message Box control
+        public static int GuiMessageBox(Rectangle bounds , ReadonlyString title , ReadonlyString message , ReadonlyString buttons)
+        {
+
+            int clicked = -1;    // Returns clicked button from buttons list, 0 refers to closed window button
+            var buttonsText_result = buttons.AsReadOnlySpan().SplitSingleChar(';');
+            int buttonCount = buttonsText_result.Item1;
+            Rectangle buttonBounds = new Rectangle(0 , 0 , 0 , 0);
+            buttonBounds.x = bounds.x + RAYGUI_MESSAGEBOX_BUTTON_PADDING;
+            buttonBounds.y = bounds.y + bounds.height - RAYGUI_MESSAGEBOX_BUTTON_HEIGHT - RAYGUI_MESSAGEBOX_BUTTON_PADDING;
+            buttonBounds.width = (bounds.width - RAYGUI_MESSAGEBOX_BUTTON_PADDING * (buttonCount + 1)) / buttonCount;
+            buttonBounds.height = RAYGUI_MESSAGEBOX_BUTTON_HEIGHT;
+
+            int textWidth = GetTextWidth(message);
+
+            Rectangle textBounds = new Rectangle(0 , 0 , 0 , 0);
+            textBounds.x = bounds.x + bounds.width / 2 - textWidth / 2;
+            textBounds.y = bounds.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + RAYGUI_MESSAGEBOX_BUTTON_PADDING;
+            textBounds.width = (float)textWidth;
+            textBounds.height = bounds.height - RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT - 3 * RAYGUI_MESSAGEBOX_BUTTON_PADDING - RAYGUI_MESSAGEBOX_BUTTON_HEIGHT;
+
+            // Draw control
+            //--------------------------------------------------------------------
+            if (GuiWindowBox(bounds , title)) clicked = 0;
+
+            uint prevTextAlignment = GuiGetStyle(LABEL , TEXT_ALIGNMENT);
+            GuiSetStyle(LABEL , TEXT_ALIGNMENT , TEXT_ALIGN_CENTER);
+            GuiLabel(textBounds , message);
+            GuiSetStyle(LABEL , TEXT_ALIGNMENT , prevTextAlignment);
+
+            prevTextAlignment = GuiGetStyle(BUTTON , TEXT_ALIGNMENT);
+            GuiSetStyle(BUTTON , TEXT_ALIGNMENT , TEXT_ALIGN_CENTER);
+
+            for (int i = 0 ; i < buttonCount ; i++)
+            {
+                {
+                    ReadonlyString button = buttons.Ref;
+                    button.Start = buttonsText_result.Item2 [ i].Item1;
+                    button.Length = buttonsText_result.Item2 [ i].Item2;
+                    if (GuiButton(buttonBounds , button)) clicked = i + 1;
+                }
+                buttonBounds.x += (buttonBounds.width + RAYGUI_MESSAGEBOX_BUTTON_PADDING);
+            }
+
+            GuiSetStyle(BUTTON , TEXT_ALIGNMENT , prevTextAlignment);
+            //--------------------------------------------------------------------
+
+            return clicked;
+        }
+
+        // List View control with extended parameters
+        public static int GuiListViewEx(Rectangle bounds , ReadonlyString [ ] text , int count , ref int focus , ref int scrollIndex , int active)
+        {
+            GuiState state = guiState;
+            int itemFocused = focus;
+            int itemSelected = active;
+
+            // Check if we need a scroll bar
+            bool useScrollBar = false;
+            if ((GuiGetStyle(LISTVIEW , LIST_ITEMS_HEIGHT) + GuiGetStyle(LISTVIEW , LIST_ITEMS_SPACING)) * count > bounds.height) useScrollBar = true;
+
+            // Define base item rectangle [0]
+            Rectangle itemBounds = new Rectangle(0 , 0 , 0 , 0);
+            itemBounds.x = bounds.x + GuiGetStyle(LISTVIEW , LIST_ITEMS_SPACING);
+            itemBounds.y = bounds.y + GuiGetStyle(LISTVIEW , LIST_ITEMS_SPACING) + GuiGetStyle(DEFAULT , BORDER_WIDTH);
+            itemBounds.width = bounds.width - 2 * GuiGetStyle(LISTVIEW , LIST_ITEMS_SPACING) - GuiGetStyle(DEFAULT , BORDER_WIDTH);
+            itemBounds.height = (float)GuiGetStyle(LISTVIEW , LIST_ITEMS_HEIGHT);
+            if (useScrollBar) itemBounds.width -= GuiGetStyle(LISTVIEW , SCROLLBAR_WIDTH);
+
+            // Get items on the list
+            int visibleItems = (int)bounds.height / ((int)GuiGetStyle(LISTVIEW , LIST_ITEMS_HEIGHT) + (int)GuiGetStyle(LISTVIEW , LIST_ITEMS_SPACING));
+            if (visibleItems > count) visibleItems = count;
+
+            int startIndex = (scrollIndex == -1) ? 0 : scrollIndex;
+            if ((startIndex < 0) || (startIndex > (count - visibleItems))) startIndex = 0;
+            int endIndex = startIndex + visibleItems;
+
+            // Update control
+            //--------------------------------------------------------------------
+            if ((state != (GuiState)STATE_DISABLED) && !guiLocked && !guiSliderDragging)
+            {
+                Vector2 mousePoint = Raylib.GetMousePosition();
+
+                // Check mouse inside list view
+                if (CheckCollisionPointRec(mousePoint , bounds))
+                {
+                    state = GuiState.STATE_FOCUSED;
+
+                    // Check focused and selected item
+                    for (int i = 0 ; i < visibleItems ; i++)
+                    {
+                        if (CheckCollisionPointRec(mousePoint , itemBounds))
+                        {
+                            itemFocused = startIndex + i;
+                            if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_LEFT_BUTTON))
+                            {
+                                if (itemSelected == (startIndex + i)) itemSelected = -1;
+                                else itemSelected = startIndex + i;
+                            }
+                            break;
+                        }
+
+                        // Update item rectangle y position for next item
+                        itemBounds.y += (GuiGetStyle(LISTVIEW , LIST_ITEMS_HEIGHT) + GuiGetStyle(LISTVIEW , LIST_ITEMS_SPACING));
+                    }
+
+                    if (useScrollBar)
+                    {
+                        int wheelMove = (int)Raylib.GetMouseWheelMove();
+                        startIndex -= wheelMove;
+
+                        if (startIndex < 0) startIndex = 0;
+                        else if (startIndex > (count - visibleItems)) startIndex = count - visibleItems;
+
+                        endIndex = startIndex + visibleItems;
+                        if (endIndex > count) endIndex = count;
+                    }
+                }
+                else itemFocused = -1;
+
+                // Reset item rectangle y to [0]
+                itemBounds.y = bounds.y + GuiGetStyle(LISTVIEW , LIST_ITEMS_SPACING) + GuiGetStyle(DEFAULT , BORDER_WIDTH);
+            }
+            //--------------------------------------------------------------------
+
+            // Draw control
+            //--------------------------------------------------------------------
+            GuiDrawRectangle(bounds , (int)GuiGetStyle(DEFAULT , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(LISTVIEW , BORDER + (int)state * 3)) , guiAlpha) , GetColor(GuiGetStyle(DEFAULT , BACKGROUND_COLOR)));     // Draw background
+
+            // Draw visible items
+            for (int i = 0 ; ((i < visibleItems) && (text.Length > 0)) ; i++)
+            {
+                if (state == GuiState.STATE_DISABLED)
+                {
+                    if ((startIndex + i) == itemSelected)
+                        GuiDrawRectangle(itemBounds , (int)GuiGetStyle(LISTVIEW , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(LISTVIEW , BORDER_COLOR_DISABLED)) , guiAlpha) , Fade(GetColor(GuiGetStyle(LISTVIEW , BASE_COLOR_DISABLED)) , guiAlpha));
+
+                    GuiDrawText(text [ startIndex + i ] , GetTextBounds(DEFAULT , itemBounds) , (int)GuiGetStyle(LISTVIEW , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(LISTVIEW , TEXT_COLOR_DISABLED)) , guiAlpha));
+                }
+                else
+                {
+                    if ((startIndex + i) == itemSelected)
+                    {
+                        // Draw item selected
+                        GuiDrawRectangle(itemBounds , (int)GuiGetStyle(LISTVIEW , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(LISTVIEW , BORDER_COLOR_PRESSED)) , guiAlpha) , Fade(GetColor(GuiGetStyle(LISTVIEW , BASE_COLOR_PRESSED)) , guiAlpha));
+                        GuiDrawText(text [ startIndex + i ] , GetTextBounds(DEFAULT , itemBounds) , (int)GuiGetStyle(LISTVIEW , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(LISTVIEW , TEXT_COLOR_PRESSED)) , guiAlpha));
+                    }
+                    else if ((startIndex + i) == itemFocused)
+                    {
+                        // Draw item focused
+                        GuiDrawRectangle(itemBounds , (int)GuiGetStyle(LISTVIEW , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(LISTVIEW , BORDER_COLOR_FOCUSED)) , guiAlpha) , Fade(GetColor(GuiGetStyle(LISTVIEW , BASE_COLOR_FOCUSED)) , guiAlpha));
+                        GuiDrawText(text [ startIndex + i ] , GetTextBounds(DEFAULT , itemBounds) , (int)GuiGetStyle(LISTVIEW , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(LISTVIEW , TEXT_COLOR_FOCUSED)) , guiAlpha));
+                    }
+                    else
+                    {
+                        // Draw item normal
+                        GuiDrawText(text [ startIndex + i ] , GetTextBounds(DEFAULT , itemBounds) , (int)GuiGetStyle(LISTVIEW , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(LISTVIEW , TEXT_COLOR_NORMAL)) , guiAlpha));
+                    }
+                }
+
+                // Update item rectangle y position for next item
+                itemBounds.y += (GuiGetStyle(LISTVIEW , LIST_ITEMS_HEIGHT) + GuiGetStyle(LISTVIEW , LIST_ITEMS_SPACING));
+            }
+
+            if (useScrollBar)
+            {
+                Rectangle scrollBarBounds = new(bounds.x + bounds.width - GuiGetStyle(LISTVIEW , BORDER_WIDTH) - GuiGetStyle(LISTVIEW , SCROLLBAR_WIDTH) ,
+                                                bounds.y + GuiGetStyle(LISTVIEW , BORDER_WIDTH) ,
+                                                (float)GuiGetStyle(LISTVIEW , SCROLLBAR_WIDTH) ,
+                                                bounds.height - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH));
+
+                // Calculate percentage of visible items and apply same percentage to scrollbar
+                float percentVisible = (float)(endIndex - startIndex) / count;
+                float sliderSize = bounds.height * percentVisible;
+
+                int prevSliderSize = (int)GuiGetStyle(SCROLLBAR , SCROLL_SLIDER_SIZE);   // Save default slider size
+                int prevScrollSpeed = (int)GuiGetStyle(SCROLLBAR , SCROLL_SPEED); // Save default scroll speed
+                GuiSetStyle(SCROLLBAR , SCROLL_SLIDER_SIZE , (uint)(int)sliderSize);            // Change slider size
+                GuiSetStyle(SCROLLBAR , SCROLL_SPEED , (uint)(count - visibleItems)); // Change scroll speed
+
+                startIndex = GuiScrollBar(scrollBarBounds , startIndex , 0 , count - visibleItems);
+
+                GuiSetStyle(SCROLLBAR , SCROLL_SPEED , (uint)prevScrollSpeed); // Reset scroll speed to default
+                GuiSetStyle(SCROLLBAR , SCROLL_SLIDER_SIZE , (uint)prevSliderSize); // Reset slider size to default
+            }
+            //--------------------------------------------------------------------
+
+            focus = itemFocused;
+            scrollIndex = startIndex;
+
+            return itemSelected;
+        }
+
+        // Text Input Box control, ask for text
+        public static int GuiTextInputBox(Rectangle bounds , ReadonlyString title , ReadonlyString message , ReadonlyString buttons , ref string text , int textMaxSize , ref int? secretViewActive)
+        {
+
+            // Used to enable text edit mode
+            // WARNING: No more than one GuiTextInputBox() should be open at the same time
+            bool textEditMode = false;
+
+            int btnIndex = -1;
+
+            int buttonCount = 0;
+            var buttonsText_Result = buttons.AsReadOnlySpan().SplitSingleChar(';');
+            buttonCount=buttonsText_Result.Item1;
+            Rectangle buttonBounds = new Rectangle(0 , 0 , 0 , 0);
+            buttonBounds.x = bounds.x + RAYGUI_TEXTINPUTBOX_BUTTON_PADDING;
+            buttonBounds.y = bounds.y + bounds.height - RAYGUI_TEXTINPUTBOX_BUTTON_HEIGHT - RAYGUI_TEXTINPUTBOX_BUTTON_PADDING;
+            buttonBounds.width = (bounds.width - RAYGUI_TEXTINPUTBOX_BUTTON_PADDING * (buttonCount + 1)) / buttonCount;
+            buttonBounds.height = RAYGUI_TEXTINPUTBOX_BUTTON_HEIGHT;
+
+            int messageInputHeight = (int)((int)bounds.height - RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT - GuiGetStyle(STATUSBAR , BORDER_WIDTH) - RAYGUI_TEXTINPUTBOX_BUTTON_HEIGHT - 2 * RAYGUI_TEXTINPUTBOX_BUTTON_PADDING);
+
+            Rectangle textBounds = new Rectangle(0 , 0 , 0 , 0);
+            if (message.Ref != null)
+            {
+                int textSize = GetTextWidth(message) + 2;
+
+                textBounds.x = bounds.x + bounds.width / 2 - textSize / 2;
+                textBounds.y = bounds.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + messageInputHeight / 4 - (float)GuiGetStyle(DEFAULT , TEXT_SIZE) / 2;
+                textBounds.width = (float)textSize;
+                textBounds.height = (float)GuiGetStyle(DEFAULT , TEXT_SIZE);
+            }
+
+            Rectangle textBoxBounds = new Rectangle(0 , 0 , 0 , 0);
+            textBoxBounds.x = bounds.x + RAYGUI_TEXTINPUTBOX_BUTTON_PADDING;
+            textBoxBounds.y = bounds.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT - RAYGUI_TEXTINPUTBOX_HEIGHT / 2;
+            if (message.Ref == null) textBoxBounds.y = bounds.y + 24 + RAYGUI_TEXTINPUTBOX_BUTTON_PADDING;
+            else textBoxBounds.y += (messageInputHeight / 2 + messageInputHeight / 4);
+            textBoxBounds.width = bounds.width - RAYGUI_TEXTINPUTBOX_BUTTON_PADDING * 2;
+            textBoxBounds.height = RAYGUI_TEXTINPUTBOX_HEIGHT;
+
+            // Draw control
+            //--------------------------------------------------------------------
+            if (GuiWindowBox(bounds , title)) btnIndex = 0;
+
+            // Draw message if available
+            if (message.Ref != null)
+            {
+                uint prevTextAlignment = GuiGetStyle(LABEL , TEXT_ALIGNMENT);
+                GuiSetStyle(LABEL , TEXT_ALIGNMENT , TEXT_ALIGN_CENTER);
+                GuiLabel(textBounds , message);
+                GuiSetStyle(LABEL , TEXT_ALIGNMENT , prevTextAlignment);
+            }
+
+            if (secretViewActive.HasValue)
+            {
+                string stars = "****************";
+                if (secretViewActive.Value == 1)
+                    if (GuiTextBox(new Rectangle(textBoxBounds.x , textBoxBounds.y , textBoxBounds.width - 4 - RAYGUI_TEXTINPUTBOX_HEIGHT , textBoxBounds.height) , ref text , textMaxSize , textEditMode)) textEditMode = !textEditMode;
+                    else if (GuiTextBox(new Rectangle(textBoxBounds.x , textBoxBounds.y , textBoxBounds.width - 4 - RAYGUI_TEXTINPUTBOX_HEIGHT , textBoxBounds.height) , ref stars , textMaxSize , textEditMode)) textEditMode = !textEditMode;
+                bool V = secretViewActive.Value == 1;
+                V = GuiToggle(new Rectangle(textBoxBounds.x + textBoxBounds.width - RAYGUI_TEXTINPUTBOX_HEIGHT , textBoxBounds.y , RAYGUI_TEXTINPUTBOX_HEIGHT , RAYGUI_TEXTINPUTBOX_HEIGHT) ,
+                    (secretViewActive.Value == 1) ? "#44#" : "#45#" , V);
+                secretViewActive = V ? 1 : 0;
+            }
+            else
+            {
+                if (GuiTextBox(textBoxBounds , ref text , textMaxSize , textEditMode)) textEditMode = !textEditMode;
+            }
+
+            uint prevBtnTextAlignment = GuiGetStyle(BUTTON , TEXT_ALIGNMENT);
+            GuiSetStyle(BUTTON , TEXT_ALIGNMENT , TEXT_ALIGN_CENTER);
+
+            for (int i = 0 ; i < buttonCount ; i++)
+            {
+                {
+                    ReadonlyString button = buttons;
+                    button.Start = buttonsText_Result.Item2 [ i].Item1;
+                    button.Length = buttonsText_Result.Item2 [ i].Item2;
+                    if (GuiButton(buttonBounds , button)) btnIndex = i + 1;
+
+                }
+                buttonBounds.x += (buttonBounds.width + RAYGUI_MESSAGEBOX_BUTTON_PADDING);
+            }
+
+            if (btnIndex >= 0) textEditMode = false;
+
+            GuiSetStyle(BUTTON , TEXT_ALIGNMENT , prevBtnTextAlignment);
+            //--------------------------------------------------------------------
+
+            return btnIndex;
         }
 
     }
