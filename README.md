@@ -20,23 +20,32 @@ Current plan: port Raygui 3.5
 - [x] GuiWindowBox
 - [x] GuiSlider
 - [x] GuiSliderBar
+- [x] GuiSliderPro
 - [x] GuiProgressBar
 - [x] GuiListView
 - [x] GuiListViewEx
 - [x] GuiMessageBox
-- [ ] GuiTextInputBox
-- [ ] GuiGrid
-- [ ] GuiCheckBox
-- [ ] GuiComboBox
-- [ ] GuiDropdownBox
-- [ ] GuiSpinner
-- [ ] GuiValueBox
-- [ ] GuiColorPicker
-- [ ] GuiColorPanel
-- [ ] GuiColorBarAlpha
-- [ ] GuiColorBarHue
+- [x] GuiTextInputBox
+- [x] GuiGrid
+- [x] GuiCheckBox
+- [x] GuiComboBox
+- [x] GuiDropdownBox
+- [x] GuiSpinner
+- [x] GuiValueBox
+- [x] GuiColorPicker
+- [x] GuiColorPanel
+- [x] GuiColorBarAlpha
+- [x] GuiColorBarHue
 - [ ] GuiLoadStyle
-- [ ] GuiLoadStyleDefault
+- [x] GuiLoadStyleDefault
+- [x] GuiEnableTooltip
+- [x] GuiDisableTooltip
+- [x] GuiSetTooltip
+- [x] GuiGroupBox
+- [x] GuiLine
+- [x] GuiPanel
+- [x] GuiTabBar
+- [?] GuiScrollPanel
 
 ## Future Plan
 

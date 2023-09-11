@@ -4,7 +4,6 @@
     <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>raygui_cs</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

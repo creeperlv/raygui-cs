@@ -12,7 +12,7 @@ namespace Raygui_cs.Test
     {
         private const string Text0 = "RAYGUI TEST, 你好";
         private const string Text1 = "Test, こにちわ\nLine 2";
-        private const string Text2 = "Test Button";
+        private const string Text2 = "Show Window";
         private const string Icon0 = "#112#";
 
         static void Main(string [ ] args)
@@ -28,51 +28,92 @@ namespace Raygui_cs.Test
             bool _TextBox = false;
             int ListView0 = 0;
             int ListView1 = 0;
+            bool _TextInputBox = false;
+            int? SecrectViewActive = null;
+            string input2 = "";
+            int PageIndex = 0;
+            int PageSelectorActive = 0;
+            bool CheckBox0 = false;
+            int ComboBox0 = 0;
+            int Dropbox0 = 0;
+            bool Dropbox1 = false;
+            int Spin = 0;
+            Color picker0 = Color.WHITE;
+            Color picker1 = Color.WHITE;
+            bool Spin0 = false;
             Raylib.SetWindowState(ConfigFlags.FLAG_VSYNC_HINT);
+            ReadonlyString []Tabs=new ReadonlyString [ 4];
+            Tabs [ 0]="Tab0";
+            Tabs [ 1]="Tab1";
+            Tabs [ 2]="Tab2";
+            Tabs [ 3]="Tab3";
+            int TabRef=0;
             while (!Raylib.WindowShouldClose())
             {
                 Raylib.BeginDrawing();
                 Raylib.ClearBackground(Color.WHITE);
-                Raylib.DrawText(Text0 , 400 , 280 , 20 , Color.BLACK);
-                Raygui.GuiLabel(new Rectangle(100 , 100 , 100 , 40) , Text1);
-                Raygui.GuiLabel(new Rectangle(100 , 80 , 100 , 40) , "");
-                if (Raygui.GuiButton(new Rectangle(20 , 140 , 50 , 20) , (int)GuiIconName.ICON_FILE_OPEN , ""))
                 {
-
-                }
-                if (Raygui.GuiButton(new Rectangle(X , 140 , 200 , 20) , Text2))
-                {
-                    Window = true;
-                }
-                ToggleButton0 = Raygui.GuiToggle(new Rectangle(100 , 160 , 20 , 20) , Icon0 , ToggleButton0);
-                SelectedToggle = Raygui.GuiToggleGroup(new Rectangle(100 , 180 , 40 , 20) , "1;2;3\n4;5;6" , SelectedToggle);
-                sb = Raygui.GuiScrollBar(new Rectangle(400 , 120 , 100 , 20) , sb , 0 , 100);
-                sb = Raygui.GuiScrollBar(new Rectangle(400 , 20 , 20 , 100) , sb , 0 , 100);
-                if (Window)
-                {
-                    Window = !Raygui.GuiWindowBox(new Rectangle(200 , 300 , 400 , 300) , "Window");
-                    Slider = Raygui.GuiSlider(new Rectangle(250 , 340 , 200 , 20) , "Left" , "Right" , Slider , 0 , 100);
-                    Slider = Raygui.GuiSlider(new Rectangle(250 , 360 , 200 , 20) , "L" , "R" , Slider , 0 , 100);
-                    Slider = Raygui.GuiProgressBar(new Rectangle(250 , 380 , 200 , 20) , ReadonlyString.NULL , ReadonlyString.NULL , Slider , 0 , 100);
-                    Slider = Raygui.GuiProgressBar(new Rectangle(250 , 400 , 200 , 20) , "L" , "R" , Slider , 0 , 100);
-                    ListView1 = Raygui.GuiListView(new Rectangle(250 , 420 , 200 , 100) , "123;321;1234567;ASD;DSA;dfghjd" , ref ListView0 , ListView1);
-                }
-                else
-                {
-
-                    switch (Raygui.GuiMessageBox(new Rectangle(200 , 150 , 300 , 150) , "MesageBox" , "Content" , "OK;CANCEL"))
+                    PageSelectorActive = Raygui.GuiListView(new Rectangle(0 , 0 , 150 , 600) , "General;Window;Inputs;Grid;Color;Panel and Tab" , ref PageIndex , PageSelectorActive);
+                    switch (PageSelectorActive)
                     {
-                        case 1: Window = true; break;
-                        case 2: Window = false; break;
+                        case 0:
+                            {
+                                {
+                                    CheckBox0 = Raygui.GuiCheckBox(new Rectangle(150 , 0 , 20 , 20) , "Checkbox" , CheckBox0);
+                                    ComboBox0 = Raygui.GuiComboBox(new Rectangle(150 , 20 , 100 , 20) , "A;B;C;D" , ComboBox0);
+                                    if (Raygui.GuiDropdownBox(new Rectangle(150 , 40 , 100 , 20) , "A;B;C;D" , ref Dropbox0 , Dropbox1)) Dropbox1 = !Dropbox1;
+                                    if (Raygui.GuiSpinner(new Rectangle(150 , 60 , 140 , 20) , "ASD" , ref Spin , 0 , 100 , Spin0)) Spin0 = !Spin0;
+                                    Raygui.GuiGroupBox(new Rectangle(250,180,300,200),"Content");
+                                }
+                            }
+                            break;
+                        case 1:
+                            {
+                                if (Raygui.GuiButton(new Rectangle(150 , 10 , 200 , 20) , Text2))
+                                {
+                                    Window = true;
+                                }
+                                if (Window)
+                                {
+                                    Window = !Raygui.GuiWindowBox(new Rectangle(200 , 100 , 400 , 300) , "Window");
+                                    Slider = Raygui.GuiSlider(new Rectangle(250 , 140 , 200 , 20) , "Left" , "Right" , Slider , 0 , 100);
+                                    Slider = Raygui.GuiSlider(new Rectangle(250 , 160 , 200 , 20) , "L" , "R" , Slider , 0 , 100);
+                                    Slider = Raygui.GuiProgressBar(new Rectangle(250 , 180 , 200 , 20) , ReadonlyString.NULL , ReadonlyString.NULL , Slider , 0 , 100);
+                                    Slider = Raygui.GuiProgressBar(new Rectangle(250 , 200 , 200 , 20) , "L" , "R" , Slider , 0 , 100);
+                                    ListView1 = Raygui.GuiListView(new Rectangle(250 , 220 , 200 , 100) , "123;321;1234567;ASD;DSA;dfghjd" , ref ListView0 , ListView1);
+                                }
+                                else
+                                {
+
+                                    switch (Raygui.GuiMessageBox(new Rectangle(200 , 150 , 300 , 150) , "MesageBox" , "Content" , "OK;CANCEL"))
+                                    {
+                                        case 1: Window = true; break;
+                                        case 2: Window = false; break;
+                                    }
+                                }
+                            }
+                            break;
+                        case 3:
+                            {
+                                Raygui.GuiGrid(new Rectangle(150 , 0 , 300 , 300) , ReadonlyString.NULL , 50 , 1);
+                            }
+                            break;
+                        case 4:
+                            {
+                                picker0 = Raygui.GuiColorPicker(new Rectangle(150 , 0 , 250 , 250) , "Color" , picker0);
+                                picker1 = Raygui.GuiColorPanel(new Rectangle(150 , 250 , 250 , 250) , "Color" , picker1);
+                            }
+                            break;
+                        case 5:
+                            {
+                                Raygui.GuiPanel(new Rectangle(150 , 0 , 250 , 250) , "Panel");
+                                Raygui.GuiTabBar(new Rectangle(150,250,250,20),Tabs,4,ref TabRef);
+                            }
+                            break;
+
+                        default:
+                            break;
                     }
-                }
-                if (!_TextBox)
-                {
-                    _TextBox = Raygui.GuiButton(new Rectangle(100 , 300 , 100 , 20) , input);
-                }
-                else
-                {
-                    _TextBox = !Raygui.GuiTextBox(new Rectangle(100 , 300 , 100 , 20) , ref input , 80 , true);
                 }
                 Raylib.EndDrawing();
             }
