@@ -3,6 +3,7 @@ using System.Numerics;
 using System;
 using System.Runtime.CompilerServices;
 using static System.Net.Mime.MediaTypeNames;
+using System.Runtime.InteropServices;
 
 namespace raygui_cs
 {//----------------------------------------------------------------------------------
@@ -1186,7 +1187,12 @@ namespace raygui_cs
                 s = 1;
             }
 
-            for (int i = s ; ((text [ i ] >= '0') && (text [ i ] <= '9')) ; ++i) value = value * 10 + (text [ i ] - '0');
+            for (int i = s ; i < text.Length ; ++i)
+            {
+                if (((text [ i ] >= '0') && (text [ i ] <= '9')))
+                    value = value * 10 + (text [ i ] - '0');
+                else break;
+            }
 
             return value * sign;
         }
@@ -3640,7 +3646,7 @@ namespace raygui_cs
             active = itemSelected;
             return pressed;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         // Spinner control, returns selected value
         public static bool GuiSpinner(Rectangle bounds , ReadonlyString text , ref int value , int minValue , int maxValue , bool editMode)
         {
@@ -3728,7 +3734,7 @@ namespace raygui_cs
 
             //char textValue [ RAYGUI_VALUEBOX_MAX_CHARS + 1 ] = "\0";
             //sprintf(textValue , "%i" , *value);
-            char [ ] textValue = value.ToString().ToArray();
+            var str = value.ToString();
             Rectangle textBounds = default;
             if (text.IsNotNull())
             {
@@ -3751,17 +3757,17 @@ namespace raygui_cs
                 {
                     state = GuiState.STATE_PRESSED;
 
-                    int keyCount = textValue.Length;
+                    int keyCount = str.Length;
 
                     // Only allow keys in range [48..57]
                     if (keyCount < RAYGUI_VALUEBOX_MAX_CHARS)
                     {
-                        if (GetTextWidth(textValue.AsSpan().ToString()) < bounds.width)
+                        if (GetTextWidth(str.ToString()) < bounds.width)
                         {
                             int key = Raylib.GetCharPressed();
                             if ((key >= 48) && (key <= 57))
                             {
-                                textValue [ keyCount ] = (char)key;
+                                str += (char)key;
                                 keyCount++;
                                 valueHasChanged = true;
                             }
@@ -3774,12 +3780,12 @@ namespace raygui_cs
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE))
                         {
                             keyCount--;
-                            textValue [ keyCount ] = '\0';
+                            str = str.Substring(0 , str.Length - 1);
                             valueHasChanged = true;
                         }
                     }
 
-                    if (valueHasChanged) value = TextToInteger(textValue);
+                    if (valueHasChanged) value = TextToInteger(str.ToCharArray());
 
                     // NOTE: We are not clamp values until user input finishes
                     //if (*value > maxValue) *value = maxValue;
@@ -3806,7 +3812,7 @@ namespace raygui_cs
             Color baseColor = Color.BLANK;
             if (state == GuiState.STATE_PRESSED) baseColor = GetColor(GuiGetStyle(VALUEBOX , BASE_COLOR_PRESSED));
             else if (state == GuiState.STATE_DISABLED) baseColor = GetColor(GuiGetStyle(VALUEBOX , BASE_COLOR_DISABLED));
-            var _tv = textValue.AsSpan().ToString();
+            var _tv = str;
             // WARNING: BLANK color does not work properly with Fade()
             GuiDrawRectangle(bounds , (int)GuiGetStyle(VALUEBOX , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(VALUEBOX , BORDER + ((int)state * 3))) , guiAlpha) , baseColor);
             GuiDrawText(_tv , GetTextBounds(VALUEBOX , bounds) , TEXT_ALIGN_CENTER , Fade(GetColor(GuiGetStyle(VALUEBOX , TEXT + ((int)state * 3))) , guiAlpha));
@@ -4125,5 +4131,187 @@ namespace raygui_cs
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GuiSetTooltip(string tooltip)
         { guiTooltipPtr = tooltip; }
+        public static void GuiLoadStyle(string fileName)
+        {
+
+            bool tryBinary = false;
+            if (File.Exists(fileName))
+            {
+                using var rstream = File.OpenRead(fileName);
+                using var SR = new StreamReader(rstream);
+                string line = null;
+                int I = 0;
+                while ((line = SR.ReadLine()) != null)
+                {
+                    if (line.Length > 0)
+                    {
+                        var header = line [ 0 ];
+                        switch (header)
+                        {
+                            case '#':
+
+                                break;
+                            case 'p':
+                                {
+                                    var items = line.Split(' ' , StringSplitOptions.TrimEntries);
+
+                                    int controlId = 0;
+                                    int propertyId = 0;
+                                    uint propertyValue = 0;
+                                    controlId = int.Parse(items [ 1 ]);
+                                    propertyId = int.Parse(items [ 2 ]);
+                                    propertyValue = uint.Parse(items [ 3 ]);
+                                    GuiSetStyle(controlId , propertyId , propertyValue);
+                                }
+                                break;
+                            case 'f':
+                                {
+                                    var items = line.Split(' ' , StringSplitOptions.TrimEntries);
+                                    var fontsize = int.Parse(items [1]);
+                                    var char_file = items [2];
+                                    var font_file = items [3];
+                                    if (char_file [ 0 ] != '0')
+                                    {
+                                        unsafe
+                                        {
+                                          var charValues = Raylib.LoadFileText(Raylib_cs.Utf8StringUtils.ToUTF8Buffer(char_file).AsPointer());
+                                        if (charValues != null)
+                                        {
+                                            int glyphCount = 0;
+                                            const char** chars = TextSplit(charValues , '\n' , &glyphCount);
+
+                                            int* values = (int*)RAYGUI_MALLOC(glyphCount * sizeof(int));
+                                            for (int i = 0 ; i < glyphCount ; i++) values [ i ] = TextToInteger(chars [ i ]);
+
+                                            if (font.texture.id != GetFontDefault().texture.id) UnloadTexture(font.texture);
+                                            font = Raylib.LoadFontEx(TextFormat("{0}/{1}" , Raylib.GetDirectoryPath(fileName) , fontFileName) , fontSize , values , glyphCount);
+                                            if (font.texture.id == 0) font = GetFontDefault();
+
+                                            RAYGUI_FREE(values);
+                                        }
+
+                                        }
+                                    }
+                                }
+                                break;
+
+                            default:
+                                {
+                                    if (I == 0)
+                                    {
+                                        //Binary File.
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                    I++;
+                }
+            }
+            // Try reading the files as text file first
+            FILE* rgsFile = fopen(fileName , "rt");
+
+            if (rgsFile != NULL)
+            {
+                char buffer [ MAX_LINE_BUFFER_SIZE ] = { 0 };
+                fgets(buffer , MAX_LINE_BUFFER_SIZE , rgsFile);
+
+                if (buffer [ 0 ] == '#')
+                {
+                    int controlId = 0;
+                    int propertyId = 0;
+                    unsigned int propertyValue = 0;
+
+                    while (!feof(rgsFile))
+                    {
+                        switch (buffer [ 0 ])
+                        {
+                            case 'p':
+                                {
+                                    // Style property: p <control_id> <property_id> <property_value> <property_name>
+
+                                    sscanf(buffer , "p %d %d 0x%x" , &controlId , &propertyId , &propertyValue);
+                                    GuiSetStyle(controlId , propertyId , (int)propertyValue);
+
+                                }
+                                break;
+                            case 'f':
+                                {
+                                    // Style font: f <gen_font_size> <charmap_file> <font_file>
+
+                                    int fontSize = 0;
+                                    char charmapFileName [ 256 ] = { 0 };
+                                    char fontFileName [ 256 ] = { 0 };
+                                    sscanf(buffer , "f %d %s %[^\r\n]s" , &fontSize , charmapFileName , fontFileName);
+
+                                    Font font = { 0 };
+
+                                    if (charmapFileName [ 0 ] != '0')
+                                    {
+                                        // Load characters from charmap file,
+                                        // expected '\n' separated list of integer values
+                                        char* charValues = LoadFileText(charmapFileName);
+                                        if (charValues != NULL)
+                                        {
+                                            int glyphCount = 0;
+                                            const char** chars = TextSplit(charValues , '\n' , &glyphCount);
+
+                                            int* values = (int*)RAYGUI_MALLOC(glyphCount * sizeof(int));
+                                            for (int i = 0 ; i < glyphCount ; i++) values [ i ] = TextToInteger(chars [ i ]);
+
+                                            if (font.texture.id != GetFontDefault().texture.id) UnloadTexture(font.texture);
+                                            font = Raylib.LoadFontEx(TextFormat("{0}/{1}" , Raylib.GetDirectoryPath(fileName) , fontFileName) , fontSize , values , glyphCount);
+                                            if (font.texture.id == 0) font = GetFontDefault();
+
+                                            RAYGUI_FREE(values);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (font.texture.id != GetFontDefault().texture.id) UnloadTexture(font.texture);
+                                        font = LoadFontEx(TextFormat("%s/%s" , GetDirectoryPath(fileName) , fontFileName) , fontSize , NULL , 0);
+                                        if (font.texture.id == 0) font = GetFontDefault();
+                                    }
+
+                                    if ((font.texture.id > 0) && (font.glyphCount > 0)) GuiSetFont(font);
+
+                                }
+                                break;
+                            default: break;
+                        }
+
+                        fgets(buffer , MAX_LINE_BUFFER_SIZE , rgsFile);
+                    }
+                }
+                else tryBinary = true;
+
+                fclose(rgsFile);
+            }
+
+            if (tryBinary)
+            {
+                rgsFile = fopen(fileName , "rb");
+
+                if (rgsFile != NULL)
+                {
+                    fseek(rgsFile , 0 , SEEK_END);
+                    int fileDataSize = ftell(rgsFile);
+                    fseek(rgsFile , 0 , SEEK_SET);
+
+                    if (fileDataSize > 0)
+                    {
+                        unsigned char* fileData = (unsigned char*)RL_MALLOC(fileDataSize * sizeof(unsigned char));
+                        fread(fileData , sizeof(unsigned char), fileDataSize, rgsFile);
+
+                        GuiLoadStyleFromMemory(fileData , fileDataSize);
+
+                        RL_FREE(fileData);
+                    }
+
+                    fclose(rgsFile);
+                }
+            }
+        }
+
     }
 }

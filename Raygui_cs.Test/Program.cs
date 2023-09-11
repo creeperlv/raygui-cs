@@ -18,19 +18,10 @@ namespace Raygui_cs.Test
         static void Main(string [ ] args)
         {
             Raylib.InitWindow(800 , 600 , "Raygui Test");
-            bool ToggleButton0 = false;
-            int X = 100;
-            int SelectedToggle = 0;
-            int sb = 0;
             bool Window = true;
             float Slider = 0;
-            string input = "";
-            bool _TextBox = false;
             int ListView0 = 0;
             int ListView1 = 0;
-            bool _TextInputBox = false;
-            int? SecrectViewActive = null;
-            string input2 = "";
             int PageIndex = 0;
             int PageSelectorActive = 0;
             bool CheckBox0 = false;
@@ -42,12 +33,12 @@ namespace Raygui_cs.Test
             Color picker1 = Color.WHITE;
             bool Spin0 = false;
             Raylib.SetWindowState(ConfigFlags.FLAG_VSYNC_HINT);
-            ReadonlyString []Tabs=new ReadonlyString [ 4];
-            Tabs [ 0]="Tab0";
-            Tabs [ 1]="Tab1";
-            Tabs [ 2]="Tab2";
-            Tabs [ 3]="Tab3";
-            int TabRef=0;
+            ReadonlyString [ ] Tabs = new ReadonlyString [ 4 ];
+            Tabs [ 0 ] = "Tab0";
+            Tabs [ 1 ] = "Tab1";
+            Tabs [ 2 ] = "Tab2";
+            Tabs [ 3 ] = "Tab3";
+            int TabRef = 0;
             while (!Raylib.WindowShouldClose())
             {
                 Raylib.BeginDrawing();
@@ -61,9 +52,8 @@ namespace Raygui_cs.Test
                                 {
                                     CheckBox0 = Raygui.GuiCheckBox(new Rectangle(150 , 0 , 20 , 20) , "Checkbox" , CheckBox0);
                                     ComboBox0 = Raygui.GuiComboBox(new Rectangle(150 , 20 , 100 , 20) , "A;B;C;D" , ComboBox0);
+                                    Raygui.GuiGroupBox(new Rectangle(250 , 180 , 300 , 200) , "Content");
                                     if (Raygui.GuiDropdownBox(new Rectangle(150 , 40 , 100 , 20) , "A;B;C;D" , ref Dropbox0 , Dropbox1)) Dropbox1 = !Dropbox1;
-                                    if (Raygui.GuiSpinner(new Rectangle(150 , 60 , 140 , 20) , "ASD" , ref Spin , 0 , 100 , Spin0)) Spin0 = !Spin0;
-                                    Raygui.GuiGroupBox(new Rectangle(250,180,300,200),"Content");
                                 }
                             }
                             break;
@@ -93,6 +83,12 @@ namespace Raygui_cs.Test
                                 }
                             }
                             break;
+                        case 2:
+                            {
+                                    if (Raygui.GuiSpinner(new Rectangle(200 , 60 , 140 , 20) , "Header" , ref Spin , 0 , 100 , Spin0)) Spin0 = !Spin0;
+
+                            }
+                            break;
                         case 3:
                             {
                                 Raygui.GuiGrid(new Rectangle(150 , 0 , 300 , 300) , ReadonlyString.NULL , 50 , 1);
@@ -107,7 +103,7 @@ namespace Raygui_cs.Test
                         case 5:
                             {
                                 Raygui.GuiPanel(new Rectangle(150 , 0 , 250 , 250) , "Panel");
-                                Raygui.GuiTabBar(new Rectangle(150,250,250,20),Tabs,4,ref TabRef);
+                                Raygui.GuiTabBar(new Rectangle(150 , 250 , 250 , 20) , Tabs , 4 , ref TabRef);
                             }
                             break;
 
