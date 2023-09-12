@@ -4,8 +4,26 @@ This is a port of `raygui` library. Basically a direct translation of from the o
 
 Modification was made to reduce memory usage and heap memory allocation.
 
-Current plan: port Raygui 3.5
+Current plan: port Raygui 4.0
 
+- [ ] GuiToggleSlider
+- [ ] GuiColorPickerHSV
+- [ ] GuiColorPanelHSV()
+
+Ported RAYGUIAPI in Raygui 3.6:
+
+- [x] GuiEnable
+- [x] GuiDisable
+- [x] GuiLock
+- [x] GuiUnlock
+- [x] GuiIsLocked
+- [x] GuiFade
+- [x] GuiSetState
+- [x] GuiGetState
+- [x] GuiGetFont
+- [x] GuiSetFont
+- [x] GuiSetStyle
+- [x] GuiGetStyle
 - [x] GuiDrawIcon
 - [x] GuiLabel
 - [x] GuiButton
@@ -44,6 +62,7 @@ Current plan: port Raygui 3.5
 - [x] GuiLine
 - [x] GuiPanel
 - [x] GuiTabBar
+- [x] GuiLoadIcons
 - [?] GuiScrollPanel
 - [?] GuiLoadStyle
 - [?] GuiLoadStyleFromMemory

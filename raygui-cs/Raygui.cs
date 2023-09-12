@@ -4,6 +4,8 @@ using System;
 using System.Runtime.CompilerServices;
 using static System.Net.Mime.MediaTypeNames;
 using System.Runtime.InteropServices;
+using raygui_cs;
+using System.Text;
 
 namespace raygui_cs
 {//----------------------------------------------------------------------------------
@@ -423,6 +425,12 @@ namespace raygui_cs
     };
     public static class Raygui
     {
+
+
+        public const int RAYGUI_VERSION_MAJOR = 3;
+        public const int RAYGUI_VERSION_MINOR = 6;
+        public const int RAYGUI_VERSION_PATCH = 0;
+        public const string RAYGUI_VERSION = "3.6";
 
         public const int STATE_NORMAL = 0;
         public const int STATE_FOCUSED = 1;
@@ -3727,6 +3735,7 @@ namespace raygui_cs
 
         // Value Box control, updates input text with numbers
         // NOTE: Requires static variables: frameCounter
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool GuiValueBox(Rectangle bounds , ReadonlyString text , ref int value , int minValue , int maxValue , bool editMode)
         {
             GuiState state = guiState;
@@ -3833,6 +3842,7 @@ namespace raygui_cs
         }
 
         // Color Panel control
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color GuiColorPanel(Rectangle bounds , ReadonlyString text , Color color)
         {
             Color colWhite = new(255 , 255 , 255 , 255);
@@ -3915,6 +3925,7 @@ namespace raygui_cs
 
         // Color Bar Alpha control
         // NOTE: Returns alpha value normalized [0..1]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GuiColorBarAlpha(Rectangle bounds , ReadonlyString text , float alpha)
         {
             GuiState state = guiState;
@@ -4008,6 +4019,7 @@ namespace raygui_cs
         //      Color GuiColorBarSat() [WHITE->color]
         //      Color GuiColorBarValue() [BLACK->color], HSV/HSL
         //      float GuiColorBarLuminance() [BLACK->WHITE]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GuiColorBarHue(Rectangle bounds , ReadonlyString text , float hue)
         {
             GuiState state = guiState;
@@ -4097,6 +4109,7 @@ namespace raygui_cs
         //      float GuiColorBarAlpha(Rectangle bounds, float alpha)
         //      float GuiColorBarHue(Rectangle bounds, float value)
         // NOTE: bounds define GuiColorPanel() size
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color GuiColorPicker(Rectangle bounds , ReadonlyString text , Color color)
         {
             color = GuiColorPanel(bounds , ReadonlyString.NULL , color);
@@ -4112,6 +4125,39 @@ namespace raygui_cs
 
             return color;
         }
+
+        //----------------------------------------------------------------------------------
+        // Gui Setup Functions Definition
+        //----------------------------------------------------------------------------------
+        // Enable gui global state
+        // NOTE: We check for STATE_DISABLED to avoid messing custom global state setups
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GuiEnable() { if (guiState == GuiState.STATE_DISABLED) guiState = STATE_NORMAL; }
+
+        // Disable gui global state
+        // NOTE: We check for STATE_NORMAL to avoid messing custom global state setups
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GuiDisable() { if (guiState == STATE_NORMAL) guiState = GuiState.STATE_DISABLED; }
+
+        // Lock gui global state
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GuiLock() { guiLocked = true; }
+
+        // Unlock gui global state
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GuiUnlock() { guiLocked = false; }
+
+        // Check if gui is locked (global state)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool GuiIsLocked() { return guiLocked; }
+        // Set gui state (global state)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GuiSetState(int state) { guiState = (GuiState)state; }
+
+        // Get gui state (global state)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GuiGetState() { return (int)guiState; }
+
 
         //----------------------------------------------------------------------------------
         // Tooltip management functions
@@ -4233,6 +4279,7 @@ namespace raygui_cs
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void GuiLoadStyleFromMemory(Stream stream)
         {
             {
@@ -4289,6 +4336,7 @@ namespace raygui_cs
                         {
                             unsafe
                             {
+                                // WARNING: May have memory leak or won't work at all!
                                 int dataUncompSize = 0;
                                 IntPtr p = Marshal.AllocHGlobal(fontImageCompSize);
                                 byte [ ] compData = new byte [ fontImageCompSize ];
@@ -4349,6 +4397,7 @@ namespace raygui_cs
         }
         // Set custom gui font
         // NOTE: Font loading/unloading is external to raygui
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GuiSetFont(Font font)
         {
             if (font.texture.id > 0)
@@ -4362,8 +4411,84 @@ namespace raygui_cs
                 GuiSetStyle(DEFAULT , TEXT_SIZE , (uint)font.baseSize);
             }
         }
+        // Load raygui icons file (.rgi)
+        // NOTE: In case nameIds are required, they can be requested with loadIconsName,
+        // they are returned as a guiIconsName[iconCount][RAYGUI_ICON_MAX_NAME_LENGTH],
+        // WARNING: guiIconsName[]][] memory should be manually freed!
+        /// <summary>
+        /// GuiLoadIcons.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="loadIconsName"></param>
+        /// <returns>Null is loadIconsName is not specified.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string [ ] GuiLoadIcons(string fileName , bool loadIconsName)
+        {
+            // Style File Structure (.rgi)
+            // ------------------------------------------------------
+            // Offset  | Size    | Type       | Description
+            // ------------------------------------------------------
+            // 0       | 4       | char       | Signature: "rGI "
+            // 4       | 2       | short      | Version: 100
+            // 6       | 2       | short      | reserved
+
+            // 8       | 2       | short      | Num icons (N)
+            // 10      | 2       | short      | Icons size (Options: 16, 32, 64) (S)
+
+            // Icons name id (32 bytes per name id)
+            // foreach (icon)
+            // {
+            //   12+32*i  | 32   | char       | Icon NameId
+            // }
+
+            // Icons data: One bit per pixel, stored as unsigned int array (depends on icon size)
+            // S*S pixels/32bit per unsigned int = K unsigned int per icon
+            // foreach (icon)
+            // {
+            //   ...   | K       | unsigned int | Icon Data
+            // }
+
+            if (File.Exists(fileName))
+            {
+                using (var stream = File.OpenRead(fileName))
+                {
+                    byte [ ] buffer4 = new byte [ 4 ];
+                    byte [ ] buffer2 = new byte [ 4 ];
+                    stream.Read(buffer4 , 0 , 4);
+                    short version = stream.ReadInt16(buffer2);
+                    short reserved = stream.ReadInt16(buffer2);
+                    short iconCount = stream.ReadInt16(buffer2);
+                    short iconSize = stream.ReadInt16(buffer2);
+                    if (buffer4 [ 0 ] == 'r' && buffer4 [ 1 ] == 'G' && buffer4 [ 2 ] == 'I' && buffer4 [ 3 ] == ' ')
+                    {
+                        if (loadIconsName)
+                        {
+                            byte [ ] buffer32 = new byte [ 32 ];
+                            var guiIconsName = new string [ iconCount ];
+                            //guiIconsName = (char**)RAYGUI_MALLOC(iconCount * sizeof(char**));
+                            for (int i = 0 ; i < iconCount ; i++)
+                            {
+                                var l = stream.Read(buffer32 , 0 , RAYGUI_ICON_MAX_NAME_LENGTH);
+                                guiIconsName [ i ] = Encoding.UTF8.GetString(buffer32 , 0 , RAYGUI_ICON_MAX_NAME_LENGTH);
+                            }
+                        }
+                        else stream.Position += iconCount * RAYGUI_ICON_MAX_NAME_LENGTH;
+                        if (guiIconsPtr.Length != iconCount * (iconSize * iconSize / 32))
+                        {
+                            guiIconsPtr = new uint [ iconCount * (iconSize * iconSize / 32) ];
+                        }
+                        for (int i = 0 ; i < guiIconsPtr.Length * sizeof(uint) ; i++)
+                        {
+                            guiIconsPtr [ i ] = stream.ReadUInt32(buffer4);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
 
     }
 
 }
+
 
