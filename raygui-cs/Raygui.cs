@@ -4137,181 +4137,233 @@ namespace raygui_cs
             bool tryBinary = false;
             if (File.Exists(fileName))
             {
-                using var rstream = File.OpenRead(fileName);
-                using var SR = new StreamReader(rstream);
-                string line = null;
-                int I = 0;
-                while ((line = SR.ReadLine()) != null)
                 {
-                    if (line.Length > 0)
+
+                    using var rstream = File.OpenRead(fileName);
+                    using var SR = new StreamReader(rstream);
+                    string line = null;
+                    int I = 0;
+                    bool WillTryBinaryLoad = false;
+                    while ((line = SR.ReadLine()) != null)
                     {
-                        var header = line [ 0 ];
-                        switch (header)
+                        if (line.Length > 0)
                         {
-                            case '#':
+                            var header = line [ 0 ];
+                            switch (header)
+                            {
+                                case '#':
 
-                                break;
-                            case 'p':
-                                {
-                                    var items = line.Split(' ' , StringSplitOptions.TrimEntries);
-
-                                    int controlId = 0;
-                                    int propertyId = 0;
-                                    uint propertyValue = 0;
-                                    controlId = int.Parse(items [ 1 ]);
-                                    propertyId = int.Parse(items [ 2 ]);
-                                    propertyValue = uint.Parse(items [ 3 ]);
-                                    GuiSetStyle(controlId , propertyId , propertyValue);
-                                }
-                                break;
-                            case 'f':
-                                {
-                                    var items = line.Split(' ' , StringSplitOptions.TrimEntries);
-                                    var fontsize = int.Parse(items [1]);
-                                    var char_file = items [2];
-                                    var font_file = items [3];
-                                    if (char_file [ 0 ] != '0')
+                                    break;
+                                case 'p':
                                     {
-                                        unsafe
+                                        var items = line.Split(' ' , StringSplitOptions.TrimEntries);
+
+                                        int controlId = 0;
+                                        int propertyId = 0;
+                                        uint propertyValue = 0;
+                                        controlId = int.Parse(items [ 1 ]);
+                                        propertyId = int.Parse(items [ 2 ]);
+                                        propertyValue = uint.Parse(items [ 3 ]);
+                                        GuiSetStyle(controlId , propertyId , propertyValue);
+                                    }
+                                    break;
+                                case 'f':
+                                    {
+                                        var items = line.Split(' ' , StringSplitOptions.TrimEntries);
+                                        var fontsize = int.Parse(items [ 1 ]);
+                                        var char_file = items [ 2 ];
+                                        var font_file = items [ 3 ];
+                                        if (char_file [ 0 ] != '0')
                                         {
-                                          var charValues = Raylib.LoadFileText(Raylib_cs.Utf8StringUtils.ToUTF8Buffer(char_file).AsPointer());
-                                        if (charValues != null)
-                                        {
-                                            int glyphCount = 0;
-                                            const char** chars = TextSplit(charValues , '\n' , &glyphCount);
-
-                                            int* values = (int*)RAYGUI_MALLOC(glyphCount * sizeof(int));
-                                            for (int i = 0 ; i < glyphCount ; i++) values [ i ] = TextToInteger(chars [ i ]);
-
-                                            if (font.texture.id != GetFontDefault().texture.id) UnloadTexture(font.texture);
-                                            font = Raylib.LoadFontEx(TextFormat("{0}/{1}" , Raylib.GetDirectoryPath(fileName) , fontFileName) , fontSize , values , glyphCount);
-                                            if (font.texture.id == 0) font = GetFontDefault();
-
-                                            RAYGUI_FREE(values);
+                                            Font font = default;
+                                            var Chars = File.ReadAllText(char_file);
+                                            unsafe
+                                            {
+                                                int* values = (int*)Raylib.MemAlloc((Chars.Length + 1) * sizeof(int));
+                                                int CharIndex = 0;
+                                                for (int i = 0 ; i < Chars.Length ; i++)
+                                                {
+                                                    if (Chars [ i ] != '\n' && Chars [ i ] != '\r')
+                                                    {
+                                                        values [ CharIndex ] = Chars [ i ];
+                                                        CharIndex++;
+                                                    }
+                                                }
+                                                values [ CharIndex ] = 0;
+                                                {
+                                                    if (font.texture.id != Raylib.GetFontDefault().texture.id) Raylib.UnloadTexture(font.texture);
+                                                    var b0 = Utf8StringUtils.ToUTF8Buffer(fileName);
+                                                    var p0 = b0.AsPointer();
+                                                    var b1 = Utf8StringUtils.ToUTF8Buffer(TextFormat("{0}/{1}" , Utf8StringUtils.GetUTF8String(Raylib.GetDirectoryPath(p0)) , font_file));
+                                                    var p1 = b1.AsPointer();
+                                                    font = Raylib.LoadFontEx(p1 , fontsize , values , CharIndex);
+                                                    b0.Dispose();
+                                                    b1.Dispose();
+                                                    Raylib.MemFree(values);
+                                                }
+                                            }
                                         }
+                                    }
+                                    break;
+
+                                default:
+                                    {
+                                        if (I == 0)
+                                        {
+                                            //Binary File.
+                                            WillTryBinaryLoad = true;
+                                            goto BREAK;
 
                                         }
                                     }
-                                }
-                                break;
-
-                            default:
-                                {
-                                    if (I == 0)
-                                    {
-                                        //Binary File.
-                                    }
-                                }
-                                break;
+                                    break;
+                            }
                         }
+                        I++;
                     }
-                    I++;
+                BREAK:
+                    ;
                 }
-            }
-            // Try reading the files as text file first
-            FILE* rgsFile = fopen(fileName , "rt");
-
-            if (rgsFile != NULL)
-            {
-                char buffer [ MAX_LINE_BUFFER_SIZE ] = { 0 };
-                fgets(buffer , MAX_LINE_BUFFER_SIZE , rgsFile);
-
-                if (buffer [ 0 ] == '#')
                 {
-                    int controlId = 0;
-                    int propertyId = 0;
-                    unsigned int propertyValue = 0;
-
-                    while (!feof(rgsFile))
+                    if (tryBinary)
                     {
-                        switch (buffer [ 0 ])
-                        {
-                            case 'p':
-                                {
-                                    // Style property: p <control_id> <property_id> <property_value> <property_name>
-
-                                    sscanf(buffer , "p %d %d 0x%x" , &controlId , &propertyId , &propertyValue);
-                                    GuiSetStyle(controlId , propertyId , (int)propertyValue);
-
-                                }
-                                break;
-                            case 'f':
-                                {
-                                    // Style font: f <gen_font_size> <charmap_file> <font_file>
-
-                                    int fontSize = 0;
-                                    char charmapFileName [ 256 ] = { 0 };
-                                    char fontFileName [ 256 ] = { 0 };
-                                    sscanf(buffer , "f %d %s %[^\r\n]s" , &fontSize , charmapFileName , fontFileName);
-
-                                    Font font = { 0 };
-
-                                    if (charmapFileName [ 0 ] != '0')
-                                    {
-                                        // Load characters from charmap file,
-                                        // expected '\n' separated list of integer values
-                                        char* charValues = LoadFileText(charmapFileName);
-                                        if (charValues != NULL)
-                                        {
-                                            int glyphCount = 0;
-                                            const char** chars = TextSplit(charValues , '\n' , &glyphCount);
-
-                                            int* values = (int*)RAYGUI_MALLOC(glyphCount * sizeof(int));
-                                            for (int i = 0 ; i < glyphCount ; i++) values [ i ] = TextToInteger(chars [ i ]);
-
-                                            if (font.texture.id != GetFontDefault().texture.id) UnloadTexture(font.texture);
-                                            font = Raylib.LoadFontEx(TextFormat("{0}/{1}" , Raylib.GetDirectoryPath(fileName) , fontFileName) , fontSize , values , glyphCount);
-                                            if (font.texture.id == 0) font = GetFontDefault();
-
-                                            RAYGUI_FREE(values);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (font.texture.id != GetFontDefault().texture.id) UnloadTexture(font.texture);
-                                        font = LoadFontEx(TextFormat("%s/%s" , GetDirectoryPath(fileName) , fontFileName) , fontSize , NULL , 0);
-                                        if (font.texture.id == 0) font = GetFontDefault();
-                                    }
-
-                                    if ((font.texture.id > 0) && (font.glyphCount > 0)) GuiSetFont(font);
-
-                                }
-                                break;
-                            default: break;
-                        }
-
-                        fgets(buffer , MAX_LINE_BUFFER_SIZE , rgsFile);
+                        using var rstream = File.OpenRead(fileName);
                     }
-                }
-                else tryBinary = true;
-
-                fclose(rgsFile);
-            }
-
-            if (tryBinary)
-            {
-                rgsFile = fopen(fileName , "rb");
-
-                if (rgsFile != NULL)
-                {
-                    fseek(rgsFile , 0 , SEEK_END);
-                    int fileDataSize = ftell(rgsFile);
-                    fseek(rgsFile , 0 , SEEK_SET);
-
-                    if (fileDataSize > 0)
-                    {
-                        unsigned char* fileData = (unsigned char*)RL_MALLOC(fileDataSize * sizeof(unsigned char));
-                        fread(fileData , sizeof(unsigned char), fileDataSize, rgsFile);
-
-                        GuiLoadStyleFromMemory(fileData , fileDataSize);
-
-                        RL_FREE(fileData);
-                    }
-
-                    fclose(rgsFile);
                 }
             }
         }
 
+        static void GuiLoadStyleFromMemory(Stream stream)
+        {
+            {
+                var sign = new byte [ 4 ];
+                Span<byte> buffer2 = new byte [ 2 ];
+                Span<byte> buffer4 = new byte [ 4 ];
+                stream.Read(sign , 0 , 4);
+                short version = 0;
+                short reserved = 0;
+                int propertyCount = 0;
+                stream.Read(buffer2);
+                version = BitConverter.ToInt16(buffer2);
+                stream.Read(buffer2);
+                reserved = BitConverter.ToInt16(buffer2);
+                stream.Read(buffer4);
+                propertyCount = BitConverter.ToInt32(buffer4);
+                if (sign [ 0 ] == 'r' && sign [ 1 ] == 'G' && sign [ 2 ] == 'S' && sign [ 3 ] == ' ')
+                {
+                    for (int _i = 0 ; _i < propertyCount ; _i++)
+                    {
+                        var cID = stream.ReadInt16(buffer4);
+                        var pID = stream.ReadInt16(buffer4);
+                        var pV = stream.ReadUInt32(buffer4);
+
+                        if (cID == 0) // DEFAULT control
+                        {
+                            // If a DEFAULT property is loaded, it is propagated to all controls
+                            // NOTE: All DEFAULT properties should be defined first in the file
+                            GuiSetStyle(0 , (int)pID , pV);
+
+                            if (pID < RAYGUI_MAX_PROPS_BASE) for (int i = 1 ; i < RAYGUI_MAX_CONTROLS ; i++) GuiSetStyle(i , (int)pID , pV);
+                        }
+                        else GuiSetStyle((int)cID , (int)pID , pV);
+                    }
+                    int FontDataSize = stream.ReadInt32(buffer4);
+                    if (FontDataSize > 0)
+                    {
+                        Font font = default;
+                        int fontType = 0;
+                        Rectangle whiteRec = default;
+                        font.baseSize = stream.ReadInt32(buffer4);
+                        font.glyphCount = stream.ReadInt32(buffer4);
+                        fontType = stream.ReadInt32(buffer4);
+                        Rectangle rectangle = stream.ReadStruct<Rectangle>();
+
+                        int fontImageUncompSize = stream.ReadInt32(buffer4);
+                        int fontImageCompSize = stream.ReadInt32(buffer4);
+                        Raylib_cs.Image imFont = default;
+                        imFont.mipmaps = 1;
+                        imFont.width = stream.ReadInt32(buffer4);
+                        imFont.height = stream.ReadInt32(buffer4);
+                        imFont.format = (PixelFormat)stream.ReadInt32(buffer4);
+                        if (fontImageCompSize < fontImageUncompSize)
+                        {
+                            unsafe
+                            {
+                                int dataUncompSize = 0;
+                                IntPtr p = Marshal.AllocHGlobal(fontImageCompSize);
+                                byte [ ] compData = new byte [ fontImageCompSize ];
+                                stream.Read(compData , 0 , fontImageCompSize);
+                                Marshal.Copy(compData , 0 , p , fontImageCompSize);
+                                var bp = (byte*)p.ToPointer();
+                                imFont.data = Raylib.DecompressData(bp , fontImageCompSize , &dataUncompSize);
+                                Marshal.FreeHGlobal(p);
+                                if (dataUncompSize != fontImageUncompSize) Console.WriteLine("WARNING: Uncompressed font atlas image data could be corrupted");
+
+                            }
+
+                        }
+                        else
+                        {
+                            unsafe
+                            {
+                                imFont.data = Raylib.MemAlloc(fontImageUncompSize);
+                                byte [ ] buffer = new byte [ fontImageUncompSize ];
+                                stream.Read(buffer);
+                                Marshal.Copy(buffer , 0 , new IntPtr(imFont.data) , fontImageUncompSize);
+                            }
+                        }
+                        if (font.texture.id != Raylib.GetFontDefault().texture.id) Raylib.UnloadTexture(font.texture);
+                        font.texture = Raylib.LoadTextureFromImage(imFont);
+                        if (font.texture.id == 0) font = Raylib.GetFontDefault();
+                        unsafe
+                        {
+                            Raylib.MemFree(imFont.data);
+
+                        }
+
+                        // Load font recs data
+                        unsafe
+                        {
+                            Rectangle* recs = (Rectangle*)Raylib.MemAlloc(font.glyphCount * sizeof(Rectangle));
+                            for (int i = 0 ; i < font.glyphCount ; i++)
+                            {
+                                recs [ i ] = stream.ReadStruct<Rectangle>();
+                            }
+                            font.recs = recs;
+                            for (int i = 0 ; i < font.glyphCount ; i++)
+                            {
+                                font.glyphs [ i ].value = stream.ReadInt32(buffer4);
+                                font.glyphs [ i ].offsetX = stream.ReadInt32(buffer4);
+                                font.glyphs [ i ].offsetY = stream.ReadInt32(buffer4);
+                                font.glyphs [ i ].advanceX = stream.ReadInt32(buffer4);
+                            }
+                        }
+                        GuiSetFont(font);
+
+                        // Set font texture source rectangle to be used as white texture to draw shapes
+                        // NOTE: This way, all gui can be draw using a single draw call
+                        if ((whiteRec.width != 0) && (whiteRec.height != 0)) Raylib.SetShapesTexture(font.texture , whiteRec);
+                    }
+                }
+            }
+        }
+        // Set custom gui font
+        // NOTE: Font loading/unloading is external to raygui
+        public static void GuiSetFont(Font font)
+        {
+            if (font.texture.id > 0)
+            {
+                // NOTE: If we try to setup a font but default style has not been
+                // lazily loaded before, it will be overwritten, so we need to force
+                // default style loading first
+                if (!guiStyleLoaded) GuiLoadStyleDefault();
+
+                guiFont = font;
+                GuiSetStyle(DEFAULT , TEXT_SIZE , (uint)font.baseSize);
+            }
+        }
+
     }
+
 }
+

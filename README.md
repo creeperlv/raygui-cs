@@ -36,7 +36,6 @@ Current plan: port Raygui 3.5
 - [x] GuiColorPanel
 - [x] GuiColorBarAlpha
 - [x] GuiColorBarHue
-- [ ] GuiLoadStyle
 - [x] GuiLoadStyleDefault
 - [x] GuiEnableTooltip
 - [x] GuiDisableTooltip
@@ -46,6 +45,10 @@ Current plan: port Raygui 3.5
 - [x] GuiPanel
 - [x] GuiTabBar
 - [?] GuiScrollPanel
+- [?] GuiLoadStyle
+- [?] GuiLoadStyleFromMemory
+
+Note: ? means require validation.
 
 ## Future Plan
 
