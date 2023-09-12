@@ -1,13 +1,8 @@
 ﻿using Raylib_cs;
 using System.Numerics;
-using System;
 using System.Runtime.CompilerServices;
-using static System.Net.Mime.MediaTypeNames;
 using System.Runtime.InteropServices;
-using raygui_cs;
 using System.Text;
-using Microsoft.VisualBasic;
-using System.Reflection;
 
 namespace raygui_cs
 {//----------------------------------------------------------------------------------
