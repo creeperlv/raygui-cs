@@ -6,9 +6,24 @@ Modification was made to reduce memory usage and heap memory allocation.
 
 Current plan: port Raygui 4.0
 
+## Redesigned:
+
+- [x] GuiButton
+- [x] GuiLine
+- [x] GuiGroupBox
+- [x] GuiLabel
+- [x] GuiTabBar
+- [x] GuiScrollPanel
+- [x] GuiWindowBox
+- [x] GuiMessageBox
+- [x] GuiToggle
+- [x] GuiToggleGroup
+
+## New Controls
+
 - [ ] GuiToggleSlider
-- [ ] GuiColorPickerHSV
-- [ ] GuiColorPanelHSV()
+- [x] GuiColorPickerHSV
+- [x] GuiColorPanelHSV
 
 Ported RAYGUIAPI in Raygui 3.6:
 

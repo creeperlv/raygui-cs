@@ -31,6 +31,7 @@ namespace Raygui_cs.Test
             int Spin = 0;
             Color picker0 = Color.WHITE;
             Color picker1 = Color.WHITE;
+            Vector3 HSV_Value=default;
             bool Spin0 = false;
             Raylib.SetWindowState(ConfigFlags.FLAG_VSYNC_HINT);
             ReadonlyString [ ] Tabs = new ReadonlyString [ 4 ];
@@ -59,13 +60,13 @@ namespace Raygui_cs.Test
                             break;
                         case 1:
                             {
-                                if (Raygui.GuiButton(new Rectangle(150 , 10 , 200 , 20) , Text2))
+                                if (Raygui.GuiButton(new Rectangle(150 , 10 , 200 , 20) , Text2)==1)
                                 {
                                     Window = true;
                                 }
                                 if (Window)
                                 {
-                                    Window = !Raygui.GuiWindowBox(new Rectangle(200 , 100 , 400 , 300) , "Window");
+                                    Window = Raygui.GuiWindowBox(new Rectangle(200 , 100 , 400 , 300) , "Window")==1?false:true;
                                     Slider = Raygui.GuiSlider(new Rectangle(250 , 140 , 200 , 20) , "Left" , "Right" , Slider , 0 , 100);
                                     Slider = Raygui.GuiSlider(new Rectangle(250 , 160 , 200 , 20) , "L" , "R" , Slider , 0 , 100);
                                     Slider = Raygui.GuiProgressBar(new Rectangle(250 , 180 , 200 , 20) , ReadonlyString.NULL , ReadonlyString.NULL , Slider , 0 , 100);
@@ -98,12 +99,14 @@ namespace Raygui_cs.Test
                             {
                                 picker0 = Raygui.GuiColorPicker(new Rectangle(150 , 0 , 250 , 250) , "Color" , picker0);
                                 picker1 = Raygui.GuiColorPanel(new Rectangle(150 , 250 , 250 , 250) , "Color" , picker1);
+                                Raygui.GuiColorPickerHSV(new Rectangle(450,0,250,250),"Color",ref HSV_Value);
+                                Raygui.GuiColorPanelHSV(new Rectangle(450,250,250,250),"Color",ref HSV_Value);
                             }
                             break;
                         case 5:
                             {
                                 Raygui.GuiPanel(new Rectangle(150 , 0 , 250 , 250) , "Panel");
-                                Raygui.GuiTabBar(new Rectangle(150 , 250 , 250 , 20) , Tabs , 4 , ref TabRef);
+                                Raygui.GuiTabBar(new Rectangle(150 , 250 , 250 , 25) , Tabs , 4 , ref TabRef);
                             }
                             break;
 

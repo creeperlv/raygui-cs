@@ -6,6 +6,8 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Runtime.InteropServices;
 using raygui_cs;
 using System.Text;
+using Microsoft.VisualBasic;
+using System.Reflection;
 
 namespace raygui_cs
 {//----------------------------------------------------------------------------------
@@ -581,6 +583,8 @@ namespace raygui_cs
         public static int RAYGUI_VALUEBOX_MAX_CHARS = 32;
         public static int RAYGUI_GROUPBOX_LINE_THICK = 1;
         public static int RAYGUI_LINE_MARGIN_TEXT = 12;
+        public static int RAYGUI_MIN_SCROLLBAR_WIDTH = 40;
+        public static int RAYGUI_MIN_SCROLLBAR_HEIGHT = 40;
         public static int RAYGUI_LINE_TEXT_PADDING = 4;
 
         public static float RAYGUI_GRID_ALPHA = 0.15f;
@@ -611,7 +615,7 @@ namespace raygui_cs
         static Raygui()
         {
             guiIcons = new uint [ ]{
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,      // ICON_NONE
+0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,      // ICON_NONE
     0x3ff80000, 0x2f082008, 0x2042207e, 0x40027fc2, 0x40024002, 0x40024002, 0x40024002, 0x00007ffe,      // ICON_FOLDER_FILE_OPEN
     0x3ffe0000, 0x44226422, 0x400247e2, 0x5ffa4002, 0x57ea500a, 0x500a500a, 0x40025ffa, 0x00007ffe,      // ICON_FILE_SAVE_CLASSIC
     0x00000000, 0x0042007e, 0x40027fc2, 0x40024002, 0x41024002, 0x44424282, 0x793e4102, 0x00000100,      // ICON_FOLDER_OPEN
@@ -775,11 +779,11 @@ namespace raygui_cs
     0x78040000, 0x501f600e, 0x0ef44004, 0x12f41284, 0x0ef41284, 0x10140004, 0x7ffc300c, 0x10003000,      // ICON_MODE_3D
     0x7fe00000, 0x50286030, 0x47fe4804, 0x44224402, 0x44224422, 0x241275e2, 0x0c06140a, 0x000007fe,      // ICON_CUBE
     0x7fe00000, 0x5ff87ff0, 0x47fe4ffc, 0x44224402, 0x44224422, 0x241275e2, 0x0c06140a, 0x000007fe,      // ICON_CUBE_FACE_TOP
-    0x7fe00000, 0x50386030, 0x47fe483c, 0x443e443e, 0x443e443e, 0x241e75fe, 0x0c06140e, 0x000007fe,      // ICON_CUBE_FACE_LEFT
+    0x7fe00000, 0x50386030, 0x47c2483c, 0x443e443e, 0x443e443e, 0x241e75fe, 0x0c06140e, 0x000007fe,      // ICON_CUBE_FACE_LEFT
     0x7fe00000, 0x50286030, 0x47fe4804, 0x47fe47fe, 0x47fe47fe, 0x27fe77fe, 0x0ffe17fe, 0x000007fe,      // ICON_CUBE_FACE_FRONT
-    0x7fe00000, 0x50286030, 0x47fe4804, 0x44224402, 0x44224422, 0x3ff27fe2, 0x0ffe1ffa, 0x000007fe,      // ICON_CUBE_FACE_BOTTOM
+    0x7fe00000, 0x50286030, 0x47fe4804, 0x44224402, 0x44224422, 0x3bf27be2, 0x0bfe1bfa, 0x000007fe,      // ICON_CUBE_FACE_BOTTOM
     0x7fe00000, 0x70286030, 0x7ffe7804, 0x7c227c02, 0x7c227c22, 0x3c127de2, 0x0c061c0a, 0x000007fe,      // ICON_CUBE_FACE_RIGHT
-    0x7fe00000, 0x7fe87ff0, 0x7ffe7fe4, 0x7fe27fe2, 0x7fe27fe2, 0x24127fe2, 0x0c06140a, 0x000007fe,      // ICON_CUBE_FACE_BACK
+    0x7fe00000, 0x6fe85ff0, 0x781e77e4, 0x7be27be2, 0x7be27be2, 0x24127be2, 0x0c06140a, 0x000007fe,      // ICON_CUBE_FACE_BACK
     0x00000000, 0x2a0233fe, 0x22022602, 0x22022202, 0x2a022602, 0x00a033fe, 0x02080110, 0x00000000,      // ICON_CAMERA
     0x00000000, 0x200c3ffc, 0x000c000c, 0x3ffc000c, 0x30003000, 0x30003000, 0x3ffc3004, 0x00000000,      // ICON_SPECIAL
     0x00000000, 0x0022003e, 0x012201e2, 0x0100013e, 0x01000100, 0x79000100, 0x4f004900, 0x00007800,      // ICON_LINK_NET
@@ -866,7 +870,7 @@ namespace raygui_cs
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,      // ICON_252
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,      // ICON_253
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,      // ICON_254
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,      // ICON_255
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,       // ICON_255
 };
             guiIconsPtr = guiIcons;
             guiStyle = new uint [ RAYGUI_MAX_CONTROLS * (RAYGUI_MAX_PROPS_BASE + RAYGUI_MAX_PROPS_EXTENDED) ];
@@ -936,10 +940,11 @@ namespace raygui_cs
         }
 
         // Toggle Button control, returns true when active
-        public static bool GuiToggle(Rectangle bounds , int iconID , ReadonlyString text , bool active)
+        public static int GuiToggle(Rectangle bounds , int iconID , ReadonlyString text , ref bool active)
         {
             int state = (int)guiState;
 
+            int result = 0;
             // Update control
             //--------------------------------------------------------------------
             if ((state != STATE_DISABLED) && !guiLocked && !guiSliderDragging)
@@ -964,22 +969,23 @@ namespace raygui_cs
             //--------------------------------------------------------------------
             if (state == STATE_NORMAL)
             {
-                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? BORDER_COLOR_PRESSED : (BORDER + state * 3)))) , guiAlpha) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? BASE_COLOR_PRESSED : (BASE + state * 3)))) , guiAlpha));
-                GuiDrawText(iconID , text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? TEXT_COLOR_PRESSED : (TEXT + state * 3)))) , guiAlpha));
+                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , GetColor(GuiGetStyle(TOGGLE , (active ? BORDER_COLOR_PRESSED : (BORDER + state * 3)))) , GetColor(GuiGetStyle(TOGGLE , (active ? BASE_COLOR_PRESSED : (BASE + state * 3)))));
+                GuiDrawText(iconID , text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , (GetColor(GuiGetStyle(TOGGLE , active ? TEXT_COLOR_PRESSED : (TEXT + state * 3)))));
             }
             else
             {
-                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TOGGLE , BORDER + state * 3)) , guiAlpha) , Fade(GetColor(GuiGetStyle(TOGGLE , BASE + state * 3)) , guiAlpha));
-                GuiDrawText(iconID , text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(TOGGLE , TEXT + state * 3)) , guiAlpha));
+                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , GetColor(GuiGetStyle(TOGGLE , BORDER + state * 3)) , GetColor(GuiGetStyle(TOGGLE , BASE + state * 3)));
+                GuiDrawText(iconID , text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , GetColor(GuiGetStyle(TOGGLE , TEXT + state * 3)));
             }
 
             if (state == STATE_FOCUSED) GuiTooltip(bounds);
             //--------------------------------------------------------------------
 
-            return active;
+            return result;
         }
-        public static bool GuiToggle(Rectangle bounds , ReadonlyString text , bool active)
+        public static int GuiToggle(Rectangle bounds , ReadonlyString text , ref bool active)
         {
+            int result = 0;
             int state = (int)guiState;
 
             // Update control
@@ -1006,19 +1012,19 @@ namespace raygui_cs
             //--------------------------------------------------------------------
             if (state == STATE_NORMAL)
             {
-                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? BORDER_COLOR_PRESSED : (BORDER + state * 3)))) , guiAlpha) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? BASE_COLOR_PRESSED : (BASE + state * 3)))) , guiAlpha));
-                GuiDrawText(text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(TOGGLE , (active ? TEXT_COLOR_PRESSED : (TEXT + state * 3)))) , guiAlpha));
+                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , (GetColor(GuiGetStyle(TOGGLE , (active ? BORDER_COLOR_PRESSED : (BORDER + state * 3))))) , (GetColor(GuiGetStyle(TOGGLE , (active ? BASE_COLOR_PRESSED : (BASE + state * 3))))));
+                GuiDrawText(text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , (GetColor(GuiGetStyle(TOGGLE , (active ? TEXT_COLOR_PRESSED : (TEXT + state * 3))))));
             }
             else
             {
-                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(TOGGLE , BORDER + state * 3)) , guiAlpha) , Fade(GetColor(GuiGetStyle(TOGGLE , BASE + state * 3)) , guiAlpha));
-                GuiDrawText(text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , Fade(GetColor(GuiGetStyle(TOGGLE , TEXT + state * 3)) , guiAlpha));
+                GuiDrawRectangle(bounds , (int)GuiGetStyle(TOGGLE , BORDER_WIDTH) , (GetColor(GuiGetStyle(TOGGLE , BORDER + state * 3))) , (GetColor(GuiGetStyle(TOGGLE , BASE + state * 3))));
+                GuiDrawText(text , GetTextBounds(TOGGLE , bounds) , (int)GuiGetStyle(TOGGLE , TEXT_ALIGNMENT) , (GetColor(GuiGetStyle(TOGGLE , TEXT + state * 3))));
             }
 
             if (state == STATE_FOCUSED) GuiTooltip(bounds);
             //--------------------------------------------------------------------
 
-            return active;
+            return result;
         }
 
         /**
@@ -1531,8 +1537,9 @@ namespace raygui_cs
 
         // Line control
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GuiLine(Rectangle bounds , ReadonlyString text)
+        public static int GuiLine(Rectangle bounds , ReadonlyString text)
         {
+            int result = 0;
             GuiState state = guiState;
 
             Color color = Fade(GetColor(GuiGetStyle(DEFAULT , (state == GuiState.STATE_DISABLED) ? BORDER_COLOR_DISABLED : LINE_COLOR)) , guiAlpha);
@@ -1554,13 +1561,15 @@ namespace raygui_cs
                 GuiDrawRectangle(new Rectangle(bounds.x + 12 + textBounds.width + 4 , bounds.y + bounds.height / 2 , bounds.width - textBounds.width - RAYGUI_LINE_MARGIN_TEXT - RAYGUI_LINE_TEXT_PADDING , 1) , 0 , Color.BLANK , color);
             }
             //--------------------------------------------------------------------
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GuiGroupBox(Rectangle bounds , ReadonlyString text)
+        public static int GuiGroupBox(Rectangle bounds , ReadonlyString text)
         {
             GuiState state = guiState;
 
+            int result = 0;
             // Draw control
             //--------------------------------------------------------------------
             GuiDrawRectangle(new Rectangle(bounds.x , bounds.y , RAYGUI_GROUPBOX_LINE_THICK , bounds.height) , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(DEFAULT , (state == GuiState.STATE_DISABLED) ? BORDER_COLOR_DISABLED : LINE_COLOR)) , guiAlpha));
@@ -1569,6 +1578,7 @@ namespace raygui_cs
 
             GuiLine(new Rectangle(bounds.x , bounds.y - GuiGetStyle(DEFAULT , TEXT_SIZE) / 2 , bounds.width , (float)GuiGetStyle(DEFAULT , TEXT_SIZE)) , text);
             //--------------------------------------------------------------------
+            return result;
         }
         // Slider control with pro parameters
         // NOTE: Other GuiSlider*() controls use this one
@@ -1971,8 +1981,9 @@ namespace raygui_cs
                 }
             }
         }
-        public static void GuiLabel(Rectangle bounds , ReadonlyString text)
+        public static int GuiLabel(Rectangle bounds , ReadonlyString text)
         {
+            int result = 0;
             GuiState state = guiState;
 
             // Update control
@@ -1985,6 +1996,7 @@ namespace raygui_cs
             GuiDrawText(text , GetTextBounds(LABEL , bounds) , (int)GuiGetStyle(LABEL , TEXT_ALIGNMENT) ,
                 Fade(GetColor(GuiGetStyle(LABEL , TEXT + ((int)state * 3))) , guiAlpha));
             //--------------------------------------------------------------------
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2169,7 +2181,7 @@ namespace raygui_cs
             var items = GuiTextSplit(text , ';' , ref itemCount , ref rows);
 
             int prevRow = rows [ 0 ];
-
+            bool toggle = false;    // Required for individual toggles
             for (int i = 0 ; i < itemCount ; i++)
             {
                 if (prevRow != rows [ i ])
@@ -2178,9 +2190,17 @@ namespace raygui_cs
                     bounds.y += (bounds.height + GuiGetStyle(TOGGLE , GROUP_PADDING));
                     prevRow = rows [ i ];
                 }
-                if (i == active) GuiToggle(bounds , items [ i ] , true);
-                else if (GuiToggle(bounds , items [ i ] , false) == true) active = i;
-
+                if (i == active)
+                {
+                    toggle = true;
+                    GuiToggle(bounds , items [ i ] , ref toggle);
+                }
+                else
+                {
+                    toggle = false;
+                    GuiToggle(bounds , items [ i ] , ref toggle);
+                    if (toggle) active = i;
+                }
                 bounds.x += (bounds.width + GuiGetStyle(TOGGLE , GROUP_PADDING));
             }
 
@@ -2189,10 +2209,10 @@ namespace raygui_cs
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         // Button control, returns true when clicked
-        public static bool GuiButton(Rectangle bounds , ReadonlyString text)
+        public static int GuiButton(Rectangle bounds , ReadonlyString text)
         {
+            int result = 0;
             int state = (int)guiState;
-            bool pressed = false;
 
             // Update control
             //--------------------------------------------------------------------
@@ -2206,7 +2226,7 @@ namespace raygui_cs
                     if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON)) state = STATE_PRESSED;
                     else state = STATE_FOCUSED;
 
-                    if (Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON)) pressed = true;
+                    if (Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON)) result = 1;
                 }
             }
             //--------------------------------------------------------------------
@@ -2215,24 +2235,25 @@ namespace raygui_cs
             //--------------------------------------------------------------------
             GuiDrawRectangle(bounds ,
                              (int)GuiGetStyle(BUTTON , BORDER_WIDTH) ,
-                             Fade(GetColor(GuiGetStyle(BUTTON , BORDER + (state * 3))) , guiAlpha) ,
-                             Fade(GetColor(GuiGetStyle(BUTTON , BASE + (state * 3))) , guiAlpha));
+                             GetColor(GuiGetStyle(BUTTON , BORDER + (state * 3))) ,
+                             GetColor(GuiGetStyle(BUTTON , BASE + (state * 3))));
             GuiDrawText(text ,
                         GetTextBounds(BUTTON , bounds) ,
                         (int)GuiGetStyle(BUTTON , TEXT_ALIGNMENT) ,
-                        Fade(GetColor(GuiGetStyle(BUTTON , TEXT + (state * 3))) , guiAlpha));
+                        GetColor(GuiGetStyle(BUTTON , TEXT + (state * 3))));
+
 
             if (state == STATE_FOCUSED) GuiTooltip(bounds);
             //------------------------------------------------------------------
 
-            return pressed;
+            return result;
         }
         // Button control, returns true when clicked
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool GuiButton(Rectangle bounds , int iconId , ReadonlyString text)
+        public static int GuiButton(Rectangle bounds , int iconId , ReadonlyString text)
         {
+            int result = 0;
             int state = (int)guiState;
-            bool pressed = false;
 
             // Update control
             //--------------------------------------------------------------------
@@ -2246,7 +2267,7 @@ namespace raygui_cs
                     if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON)) state = STATE_PRESSED;
                     else state = STATE_FOCUSED;
 
-                    if (Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON)) pressed = true;
+                    if (Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON)) result = 1;
                 }
             }
             //--------------------------------------------------------------------
@@ -2255,17 +2276,17 @@ namespace raygui_cs
             //--------------------------------------------------------------------
             GuiDrawRectangle(bounds ,
                              (int)GuiGetStyle(BUTTON , BORDER_WIDTH) ,
-                             Fade(GetColor(GuiGetStyle(BUTTON , BORDER + (state * 3))) , guiAlpha) ,
-                             Fade(GetColor(GuiGetStyle(BUTTON , BASE + (state * 3))) , guiAlpha));
+                             GetColor(GuiGetStyle(BUTTON , BORDER + (state * 3))) ,
+                             GetColor(GuiGetStyle(BUTTON , BASE + (state * 3))));
             GuiDrawText(iconId , text ,
                         GetTextBounds(BUTTON , bounds) ,
                         (int)GuiGetStyle(BUTTON , TEXT_ALIGNMENT) ,
-                        Fade(GetColor(GuiGetStyle(BUTTON , TEXT + (state * 3))) , guiAlpha));
+                        GetColor(GuiGetStyle(BUTTON , TEXT + (state * 3))));
 
             if (state == STATE_FOCUSED) GuiTooltip(bounds);
             //------------------------------------------------------------------
 
-            return pressed;
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2281,7 +2302,8 @@ namespace raygui_cs
 
             GuiState state = guiState;
 
-            int closing = -1;
+            int result = -1;
+            //int closing = -1;
             Rectangle tabBounds = new(bounds.x , bounds.y , RAYGUI_TABBAR_ITEM_WIDTH , bounds.height);
 
             if (active < 0) active = 0;
@@ -2291,6 +2313,7 @@ namespace raygui_cs
             offsetX = (active + 2) * RAYGUI_TABBAR_ITEM_WIDTH - Raylib.GetScreenWidth();
             if (offsetX < 0) offsetX = 0;
 
+            bool toggle = false;    // Required for individual toggles
             // Draw control
             //--------------------------------------------------------------------
             for (int i = 0 ; i < count ; i++)
@@ -2304,13 +2327,23 @@ namespace raygui_cs
                     uint textPadding = GuiGetStyle(TOGGLE , TEXT_PADDING);
                     GuiSetStyle(TOGGLE , TEXT_ALIGNMENT , TEXT_ALIGN_LEFT);
                     GuiSetStyle(TOGGLE , TEXT_PADDING , 8);
-                    if (i == active) GuiToggle(tabBounds , 12 , text [ i ] , true);
-                    else if (GuiToggle(tabBounds , 12 , text [ i ] , false) == true) active = i;
+                    if (i == (active))
+                    {
+                        toggle = true;
+                        GuiToggle(tabBounds , 12 , text [ i ] , ref toggle);
+                    }
+                    else
+                    {
+                        toggle = false;
+                        GuiToggle(tabBounds , 12 , text [ i ] , ref toggle);
+                        if (toggle) active = i;
+                    }
+
                     GuiSetStyle(TOGGLE , TEXT_PADDING , textPadding);
                     GuiSetStyle(TOGGLE , TEXT_ALIGNMENT , textAlignment);
 
                     // Draw tab close button
-                    // NOTE: Only draw close button for curren tab: if (CheckCollisionPointRec(mousePoint, tabBounds))
+                    // NOTE: Only draw close button for current tab: if (CheckCollisionPointRec(mousePosition, tabBounds))
                     uint tempBorderWidth = GuiGetStyle(BUTTON , BORDER_WIDTH);
                     uint tempTextAlignment = GuiGetStyle(BUTTON , TEXT_ALIGNMENT);
                     GuiSetStyle(BUTTON , BORDER_WIDTH , 1);
@@ -2318,12 +2351,12 @@ namespace raygui_cs
                     if (RAYGUI_NO_ICONS)
                     {
 
-                        if (GuiButton(new Rectangle(tabBounds.x + tabBounds.width - 14 - 5 , tabBounds.y + 5 , 14 , 14) , "x")) closing = i;
+                        if (GuiButton(new Rectangle(tabBounds.x + tabBounds.width - 14 - 5 , tabBounds.y + 5 , 14 , 14) , "x") == 1) result = i;
                     }
                     else
                     {
 
-                        if (GuiButton(new Rectangle(tabBounds.x + tabBounds.width - 14 - 5 , tabBounds.y + 5 , 14 , 14) , (int)GuiIconName.ICON_CROSS_SMALL , "")) closing = i;
+                        if (GuiButton(new Rectangle(tabBounds.x + tabBounds.width - 14 - 5 , tabBounds.y + 5 , 14 , 14) , (int)GuiIconName.ICON_CROSS_SMALL , "") == 1) result = i;
                     }
                     GuiSetStyle(BUTTON , BORDER_WIDTH , tempBorderWidth);
                     GuiSetStyle(BUTTON , TEXT_ALIGNMENT , tempTextAlignment);
@@ -2334,14 +2367,17 @@ namespace raygui_cs
             GuiDrawRectangle(new Rectangle(bounds.x , bounds.y + bounds.height - 1 , bounds.width , 1) , 0 , Color.BLANK , GetColor((int)GuiGetStyle(TOGGLE , BORDER_COLOR_NORMAL)));
             //--------------------------------------------------------------------
 
-            return closing;     // Return closing tab requested
+            return result;     // Return as result the current TAB closing requested
         }
 
         // Scroll Panel control
-        public static Rectangle GuiScrollPanel(Rectangle bounds , ReadonlyString text , Rectangle content , ref Vector2? scroll)
+        public static int GuiScrollPanel(Rectangle bounds , ReadonlyString text , Rectangle content , ref Vector2? scroll , ref Rectangle? view)
         {
+            int result = 0;
+            Rectangle temp = default;
+            if (!view.HasValue) view = temp;
             GuiState state = guiState;
-
+            float mouseWheelSpeed = 20.0f;
             Vector2 scrollPos = new(0.0f , 0.0f);
             if (scroll.HasValue) scrollPos = scroll.Value;
 
@@ -2365,18 +2401,50 @@ namespace raygui_cs
 
             uint horizontalScrollBarWidth = hasHorizontalScrollBar ? GuiGetStyle(LISTVIEW , SCROLLBAR_WIDTH) : 0;
             uint verticalScrollBarWidth = hasVerticalScrollBar ? GuiGetStyle(LISTVIEW , SCROLLBAR_WIDTH) : 0;
-            Rectangle horizontalScrollBar = new((float)((GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)bounds.x + verticalScrollBarWidth : (float)bounds.x) + GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)bounds.y + bounds.height - horizontalScrollBarWidth - GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)bounds.width - verticalScrollBarWidth - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)horizontalScrollBarWidth);
-            Rectangle verticalScrollBar = new((float)((GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)bounds.x + GuiGetStyle(DEFAULT , BORDER_WIDTH) : (float)bounds.x + bounds.width - verticalScrollBarWidth - GuiGetStyle(DEFAULT , BORDER_WIDTH)) , (float)bounds.y + GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)verticalScrollBarWidth , (float)bounds.height - horizontalScrollBarWidth - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH));
+            Rectangle horizontalScrollBar = new((float)((GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)bounds.x + verticalScrollBarWidth : (float)bounds.x)
+                                                 + GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)bounds.y + bounds.height - horizontalScrollBarWidth - GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)bounds.width - verticalScrollBarWidth - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)horizontalScrollBarWidth);
+            Rectangle verticalScrollBar = new(
+                (float)((GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)bounds.x + GuiGetStyle(DEFAULT , BORDER_WIDTH) : (float)bounds.x + bounds.width - verticalScrollBarWidth - GuiGetStyle(DEFAULT , BORDER_WIDTH)) ,
+                (float)bounds.y + GuiGetStyle(DEFAULT , BORDER_WIDTH) ,
+                (float)verticalScrollBarWidth ,
+                (float)bounds.height - horizontalScrollBarWidth - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH)
+            );
+
+            // Make sure scroll bars have a minimum width/height
+            // NOTE: If content >>> bounds, size could be very small or even 0
+            if (horizontalScrollBar.width < RAYGUI_MIN_SCROLLBAR_WIDTH)
+            {
+                horizontalScrollBar.width = RAYGUI_MIN_SCROLLBAR_WIDTH;
+                mouseWheelSpeed = 30.0f;    // TODO: Calculate speed increment based on content.height vs bounds.height
+            }
+            if (verticalScrollBar.height < RAYGUI_MIN_SCROLLBAR_HEIGHT)
+            {
+                verticalScrollBar.height = RAYGUI_MIN_SCROLLBAR_HEIGHT;
+                mouseWheelSpeed = 30.0f;    // TODO: Calculate speed increment based on content.width vs bounds.width
+            }
+            //Rectangle horizontalScrollBar = new((float)((GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)bounds.x + verticalScrollBarWidth : (float)bounds.x) + GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)bounds.y + bounds.height - horizontalScrollBarWidth - GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)bounds.width - verticalScrollBarWidth - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)horizontalScrollBarWidth);
+            //Rectangle verticalScrollBar = new((float)((GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)bounds.x + GuiGetStyle(DEFAULT , BORDER_WIDTH) : (float)bounds.x + bounds.width - verticalScrollBarWidth - GuiGetStyle(DEFAULT , BORDER_WIDTH)) , (float)bounds.y + GuiGetStyle(DEFAULT , BORDER_WIDTH) , (float)verticalScrollBarWidth , (float)bounds.height - horizontalScrollBarWidth - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH));
 
             // Calculate view area (area without the scrollbars)
-            Rectangle view = (GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ?
+            view = (GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ?
                         new Rectangle(bounds.x + verticalScrollBarWidth + GuiGetStyle(DEFAULT , BORDER_WIDTH) , bounds.y + GuiGetStyle(DEFAULT , BORDER_WIDTH) , bounds.width - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH) - verticalScrollBarWidth , bounds.height - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH) - horizontalScrollBarWidth
         ) :
                         new Rectangle(bounds.x + GuiGetStyle(DEFAULT , BORDER_WIDTH) , bounds.y + GuiGetStyle(DEFAULT , BORDER_WIDTH) , bounds.width - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH) - verticalScrollBarWidth , bounds.height - 2 * GuiGetStyle(DEFAULT , BORDER_WIDTH) - horizontalScrollBarWidth);
 
             // Clip view area to the actual content size
-            if (view.width > content.width) view.width = content.width;
-            if (view.height > content.height) view.height = content.height;
+            if (view.Value.width > content.width)
+            {
+                var v = view.Value;
+                v.width = content.width;
+                view = v;
+            }
+
+            if (view.Value.height > content.height)
+            {
+                var v = view.Value;
+                v.height = content.height;
+                view = v;
+            }
 
             float horizontalMin = hasHorizontalScrollBar ? ((GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)-verticalScrollBarWidth : 0) - (float)GuiGetStyle(DEFAULT , BORDER_WIDTH) : (((float)GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)-verticalScrollBarWidth : 0) - (float)GuiGetStyle(DEFAULT , BORDER_WIDTH);
             float horizontalMax = hasHorizontalScrollBar ? content.width - bounds.width + (float)verticalScrollBarWidth + GuiGetStyle(DEFAULT , BORDER_WIDTH) - (((float)GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (float)verticalScrollBarWidth : 0) : (float)-GuiGetStyle(DEFAULT , BORDER_WIDTH);
@@ -2415,7 +2483,7 @@ namespace raygui_cs
 
                     // Horizontal scroll ((Left Control or Left Shift) + Mouse wheel)
                     if (hasHorizontalScrollBar && (Raylib.IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || Raylib.IsKeyDown(KeyboardKey.KEY_LEFT_SHIFT))) scrollPos.X += wheelMove * 20;
-                    else scrollPos.Y += wheelMove * 20; // Vertical scroll
+                    else scrollPos.Y += wheelMove * mouseWheelSpeed; // Vertical scroll
                 }
             }
 
@@ -2430,7 +2498,7 @@ namespace raygui_cs
             //--------------------------------------------------------------------
             if (text.IsNotNull()) GuiStatusBar(statusBar , text);  // Draw panel header as status bar
 
-            GuiDrawRectangle(bounds , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(DEFAULT , BACKGROUND_COLOR)) , guiAlpha));        // Draw background
+            GuiDrawRectangle(bounds , 0 , Color.BLANK , GetColor(GuiGetStyle(DEFAULT , BACKGROUND_COLOR)));      // Draw background
 
             // Save size of the scrollbar slider
             uint slider = GuiGetStyle(SCROLLBAR , SCROLL_SLIDER_SIZE);
@@ -2457,7 +2525,7 @@ namespace raygui_cs
             if (hasHorizontalScrollBar && hasVerticalScrollBar)
             {
                 Rectangle corner = new((GuiGetStyle(LISTVIEW , SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE) ? (bounds.x + GuiGetStyle(DEFAULT , BORDER_WIDTH) + 2) : (horizontalScrollBar.x + horizontalScrollBar.width + 2) , verticalScrollBar.y + verticalScrollBar.height + 2 , (float)horizontalScrollBarWidth - 4 , (float)verticalScrollBarWidth - 4);
-                GuiDrawRectangle(corner , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(LISTVIEW , TEXT + ((int)state * 3))) , guiAlpha));
+                GuiDrawRectangle(corner , 0 , Color.BLANK , GetColor(GuiGetStyle(LISTVIEW , TEXT + ((int)state * 3))));
             }
 
             // Draw scrollbar lines depending on current state
@@ -2469,13 +2537,14 @@ namespace raygui_cs
 
             if (scroll.HasValue) scroll = scrollPos;
 
-            return view;
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         // Panel control
-        public static void GuiPanel(Rectangle bounds , ReadonlyString text)
+        public static int GuiPanel(Rectangle bounds , ReadonlyString text)
         {
+            int result = 0;
             GuiState state = guiState;
 
             // Text will be drawn as a header bar (if provided)
@@ -2498,6 +2567,7 @@ namespace raygui_cs
                              Fade(GetColor(GuiGetStyle(DEFAULT , ((int)state == STATE_DISABLED) ? BORDER_COLOR_DISABLED : LINE_COLOR)) , guiAlpha) ,
                              Fade(GetColor(GuiGetStyle(DEFAULT , ((int)state == STATE_DISABLED) ? BASE_COLOR_DISABLED : BACKGROUND_COLOR)) , guiAlpha));
             //--------------------------------------------------------------------
+            return result;
         }
 
         // Dummy rectangle control, intended for placeholding
@@ -2596,10 +2666,10 @@ namespace raygui_cs
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool GuiWindowBox(Rectangle bounds , ReadonlyString title)
+        public static int GuiWindowBox(Rectangle bounds , ReadonlyString title)
         {
             //GuiState state = guiState;
-            bool clicked = false;
+            int result = 0;
 
             int statusBarHeight = RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT;
 
@@ -2626,15 +2696,16 @@ namespace raygui_cs
             GuiSetStyle(BUTTON , BORDER_WIDTH , 1);
             GuiSetStyle(BUTTON , TEXT_ALIGNMENT , TEXT_ALIGN_CENTER);
             if (RAYGUI_NO_ICONS)
-                clicked = GuiButton(closeButtonRec , "x");
+
+                result = GuiButton(closeButtonRec , "x");
             else
-                clicked = GuiButton(closeButtonRec , (int)GuiIconName.ICON_CROSS_SMALL , "");
+                result = GuiButton(closeButtonRec , (int)GuiIconName.ICON_CROSS_SMALL , "");
 
             GuiSetStyle(BUTTON , BORDER_WIDTH , tempBorderWidth);
             GuiSetStyle(BUTTON , TEXT_ALIGNMENT , tempTextAlignment);
             //--------------------------------------------------------------------
 
-            return clicked;
+            return result;
         }
 
         // Get text with icon id prepended
@@ -3044,12 +3115,106 @@ namespace raygui_cs
             return GuiListViewEx(bounds , items , itemCount , ref f , ref scrollIndex , active);
         }
 
+        // Color Picker control that avoids conversion to RGB and back to HSV on each call, thus avoiding jittering.
+        // The user can call ConvertHSVtoRGB() to convert *colorHsv value to RGB.
+        // NOTE: It's divided in multiple controls:
+        //      int GuiColorPanelHSV(Rectangle bounds, const char *text, Vector3 *colorHsv)
+        //      int GuiColorBarAlpha(Rectangle bounds, const char *text, float *alpha)
+        //      float GuiColorBarHue(Rectangle bounds, float value)
+        // NOTE: bounds define GuiColorPanelHSV() size
+        public static int GuiColorPickerHSV(Rectangle bounds , ReadonlyString text , ref Vector3 colorHsv)
+        {
+            int result = 0;
+
+
+            var v = colorHsv;
+            GuiColorPanelHSV(bounds , ReadonlyString.NULL , ref v);
+            colorHsv = v;
+            Rectangle boundsHue = new((float)bounds.x + bounds.width + GuiGetStyle(COLORPICKER , HUEBAR_PADDING) , (float)bounds.y , (float)GuiGetStyle(COLORPICKER , HUEBAR_WIDTH) , (float)bounds.height);
+
+            GuiColorBarHue(boundsHue , ReadonlyString.NULL ,ref colorHsv.X);
+
+            return result;
+        }
+
+        // Color Panel control, returns HSV color value in *colorHsv.
+        // Used by GuiColorPickerHSV()
+        public static int GuiColorPanelHSV(Rectangle bounds , ReadonlyString text , ref Vector3 colorHsv)
+        {
+            int result = 0;
+            GuiState state = guiState;
+            Vector2 pickerSelector = default;
+
+            Color colWhite = new(255 , 255 , 255 , 255);
+            Color colBlack = new(0 , 0 , 0 , 255);
+
+            pickerSelector.X = bounds.x + (float)colorHsv.Y * bounds.width;            // HSV: Saturation
+            pickerSelector.Y = bounds.y + (1.0f - (float)colorHsv.Z) * bounds.height;  // HSV: Value
+
+            float hue = -1.0f;
+            Vector3 maxHue = new(hue >= 0.0f ? hue : colorHsv.X , 1.0f , 1.0f);
+            Vector3 rgbHue = ConvertHSVtoRGB(maxHue);
+            Color maxHueCol = new((byte)(255.0f * rgbHue.X) ,
+                              (byte)(255.0f * rgbHue.Y) ,
+                              (byte)(255.0f * rgbHue.Z) , (byte)255);
+
+            // Update control
+            //--------------------------------------------------------------------
+            if ((state != GuiState.STATE_DISABLED) && !guiLocked && !guiSliderDragging)
+            {
+                Vector2 mousePoint = Raylib.GetMousePosition();
+
+                if (CheckCollisionPointRec(mousePoint , bounds))
+                {
+                    if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
+                    {
+                        state = GuiState.STATE_PRESSED;
+                        pickerSelector = mousePoint;
+
+                        // Calculate color from picker
+                        Vector2 colorPick = new(pickerSelector.X - bounds.x , pickerSelector.Y - bounds.y);
+
+                        colorPick.X /= (float)bounds.width;     // Get normalized value on x
+                        colorPick.Y /= (float)bounds.height;    // Get normalized value on y
+
+                        colorHsv.Y = colorPick.X;
+                        colorHsv.Z = 1.0f - colorPick.Y;
+                    }
+                    else state = GuiState.STATE_FOCUSED;
+                }
+            }
+            //--------------------------------------------------------------------
+
+            // Draw control
+            //--------------------------------------------------------------------
+            if (state != GuiState.STATE_DISABLED)
+            {
+                Raylib.DrawRectangleGradientEx(bounds , Fade(colWhite , guiAlpha) , Fade(colWhite , guiAlpha) , Fade(maxHueCol , guiAlpha) , Fade(maxHueCol , guiAlpha));
+                Raylib.DrawRectangleGradientEx(bounds , Fade(colBlack , 0) , Fade(colBlack , guiAlpha) , Fade(colBlack , guiAlpha) , Fade(colBlack , 0));
+
+                // Draw color picker: selector
+                Rectangle selector = new(pickerSelector.X - GuiGetStyle(COLORPICKER , COLOR_SELECTOR_SIZE) / 2 ,
+                                          pickerSelector.Y - GuiGetStyle(COLORPICKER , COLOR_SELECTOR_SIZE) / 2 ,
+                                          (float)GuiGetStyle(COLORPICKER , COLOR_SELECTOR_SIZE) ,
+                                          (float)GuiGetStyle(COLORPICKER , COLOR_SELECTOR_SIZE));
+                GuiDrawRectangle(selector , 0 , Color.BLANK , colWhite);
+            }
+            else
+            {
+                Raylib.DrawRectangleGradientEx(bounds , Fade(Fade(GetColor(GuiGetStyle(COLORPICKER , BASE_COLOR_DISABLED)) , 0.1f) , guiAlpha) , Fade(Fade(colBlack , 0.6f) , guiAlpha) , Fade(Fade(colBlack , 0.6f) , guiAlpha) , Fade(Fade(GetColor(GuiGetStyle(COLORPICKER , BORDER_COLOR_DISABLED)) , 0.6f) , guiAlpha));
+            }
+
+            GuiDrawRectangle(bounds , (int)GuiGetStyle(COLORPICKER , BORDER_WIDTH) , GetColor(GuiGetStyle(COLORPICKER , BORDER + (int)state * 3)) , Color.BLANK);
+            //--------------------------------------------------------------------
+
+            return result;
+        }
         // Message Box control
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GuiMessageBox(Rectangle bounds , ReadonlyString title , ReadonlyString message , ReadonlyString buttons)
         {
 
-            int clicked = -1;    // Returns clicked button from buttons list, 0 refers to closed window button
+            int result = -1;    // Returns clicked button from buttons list, 0 refers to closed window button
             var buttonsText_result = buttons.AsReadOnlySpan().SplitSingleChar(';');
             int buttonCount = buttonsText_result.Item1;
             Rectangle buttonBounds = new Rectangle(0 , 0 , 0 , 0);
@@ -3058,7 +3223,7 @@ namespace raygui_cs
             buttonBounds.width = (bounds.width - RAYGUI_MESSAGEBOX_BUTTON_PADDING * (buttonCount + 1)) / buttonCount;
             buttonBounds.height = RAYGUI_MESSAGEBOX_BUTTON_HEIGHT;
 
-            int textWidth = GetTextWidth(message);
+            int textWidth = GetTextWidth(message) + 2;
 
             Rectangle textBounds = new Rectangle(0 , 0 , 0 , 0);
             textBounds.x = bounds.x + bounds.width / 2 - textWidth / 2;
@@ -3068,7 +3233,7 @@ namespace raygui_cs
 
             // Draw control
             //--------------------------------------------------------------------
-            if (GuiWindowBox(bounds , title)) clicked = 0;
+            if (GuiWindowBox(bounds , title) == 1) result = 0;
 
             uint prevTextAlignment = GuiGetStyle(LABEL , TEXT_ALIGNMENT);
             GuiSetStyle(LABEL , TEXT_ALIGNMENT , TEXT_ALIGN_CENTER);
@@ -3084,7 +3249,7 @@ namespace raygui_cs
                     ReadonlyString button = buttons.Ref;
                     button.Start = buttonsText_result.Item2 [ i ].Item1;
                     button.Length = buttonsText_result.Item2 [ i ].Item2;
-                    if (GuiButton(buttonBounds , button)) clicked = i + 1;
+                    if (GuiButton(buttonBounds , button) == 1) result = i + 1;
                 }
                 buttonBounds.x += (buttonBounds.width + RAYGUI_MESSAGEBOX_BUTTON_PADDING);
             }
@@ -3092,7 +3257,7 @@ namespace raygui_cs
             GuiSetStyle(BUTTON , TEXT_ALIGNMENT , prevTextAlignment);
             //--------------------------------------------------------------------
 
-            return clicked;
+            return result;
         }
 
         // List View control with extended parameters
@@ -3280,7 +3445,7 @@ namespace raygui_cs
 
             // Draw control
             //--------------------------------------------------------------------
-            if (GuiWindowBox(bounds , title)) btnIndex = 0;
+            if (GuiWindowBox(bounds , title) == 1) btnIndex = 0;
 
             // Draw message if available
             if (message.Ref != null)
@@ -3309,8 +3474,8 @@ namespace raygui_cs
                                     TextInputBox_textEditMode))
                     TextInputBox_textEditMode = !TextInputBox_textEditMode;
                 bool V = secretViewActive.Value == 1;
-                V = GuiToggle(new Rectangle(textBoxBounds.x + textBoxBounds.width - RAYGUI_TEXTINPUTBOX_HEIGHT , textBoxBounds.y , RAYGUI_TEXTINPUTBOX_HEIGHT , RAYGUI_TEXTINPUTBOX_HEIGHT) ,
-                    (secretViewActive.Value == 1) ? "#44#" : "#45#" , V);
+                GuiToggle(new Rectangle(textBoxBounds.x + textBoxBounds.width - RAYGUI_TEXTINPUTBOX_HEIGHT , textBoxBounds.y , RAYGUI_TEXTINPUTBOX_HEIGHT , RAYGUI_TEXTINPUTBOX_HEIGHT) ,
+                    (secretViewActive.Value == 1) ? "#44#" : "#45#" , ref V);
                 secretViewActive = V ? 1 : 0;
             }
             else
@@ -3327,7 +3492,7 @@ namespace raygui_cs
                     ReadonlyString button = buttons;
                     button.Start = buttonsText_Result.Item2 [ i ].Item1;
                     button.Length = buttonsText_Result.Item2 [ i ].Item2;
-                    if (GuiButton(buttonBounds , button)) btnIndex = i + 1;
+                    if (GuiButton(buttonBounds , button) == 1) btnIndex = i + 1;
 
                 }
                 buttonBounds.x += (buttonBounds.width + RAYGUI_MESSAGEBOX_BUTTON_PADDING);
@@ -3694,13 +3859,13 @@ namespace raygui_cs
 
             if (RAYGUI_NO_ICONS)
             {
-                if (GuiButton(leftButtonBound , "<")) tempValue--;
-                if (GuiButton(rightButtonBound , ">")) tempValue++;
+                if (GuiButton(leftButtonBound , "<") == 1) tempValue--;
+                if (GuiButton(rightButtonBound , ">") == 1) tempValue++;
             }
             else
             {
-                if (GuiButton(leftButtonBound , (int)GuiIconName.ICON_ARROW_LEFT_FILL , "")) tempValue--;
-                if (GuiButton(rightButtonBound , (int)GuiIconName.ICON_ARROW_RIGHT_FILL , "")) tempValue++;
+                if (GuiButton(leftButtonBound , (int)GuiIconName.ICON_ARROW_LEFT_FILL , "") == 1) tempValue--;
+                if (GuiButton(rightButtonBound , (int)GuiIconName.ICON_ARROW_RIGHT_FILL , "") == 1) tempValue++;
             }
 
 
@@ -4020,8 +4185,10 @@ namespace raygui_cs
         //      Color GuiColorBarValue() [BLACK->color], HSV/HSL
         //      float GuiColorBarLuminance() [BLACK->WHITE]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float GuiColorBarHue(Rectangle bounds , ReadonlyString text , float hue)
+        public static int GuiColorBarHue(Rectangle bounds , ReadonlyString text , ref float hue)
         {
+
+            int result = 0;
             GuiState state = guiState;
             Rectangle selector = new(bounds.x - GuiGetStyle(COLORPICKER , HUEBAR_SELECTOR_OVERFLOW) ,
                                       (float)bounds.y + hue / 360.0f * bounds.height - GuiGetStyle(COLORPICKER , HUEBAR_SELECTOR_HEIGHT) / 2 ,
@@ -4040,6 +4207,8 @@ namespace raygui_cs
                     {
                         if (CHECK_BOUNDS_ID(bounds , guiSliderActive))
                         {
+                            state = GuiState.STATE_PRESSED;
+
                             hue = (mousePoint.Y - bounds.y) * 360 / bounds.height;
                             if (hue <= 0.0f) hue = 0.0f;
                             if (hue >= 359.0f) hue = 359.0f;
@@ -4094,13 +4263,13 @@ namespace raygui_cs
             }
             else Raylib.DrawRectangleGradientV((int)bounds.x , (int)bounds.y , (int)bounds.width , (int)bounds.height , Fade(Fade(GetColor(GuiGetStyle(COLORPICKER , BASE_COLOR_DISABLED)) , 0.1f) , guiAlpha) , Fade(GetColor(GuiGetStyle(COLORPICKER , BORDER_COLOR_DISABLED)) , guiAlpha));
 
-            GuiDrawRectangle(bounds , (int)GuiGetStyle(COLORPICKER , BORDER_WIDTH) , Fade(GetColor(GuiGetStyle(COLORPICKER , BORDER + (int)state * 3)) , guiAlpha) , Color.BLANK);
+            GuiDrawRectangle(bounds , (int)GuiGetStyle(COLORPICKER , BORDER_WIDTH) , GetColor(GuiGetStyle(COLORPICKER , BORDER + (int)state * 3)) , Color.BLANK);
 
             // Draw hue bar: selector
-            GuiDrawRectangle(selector , 0 , Color.BLANK , Fade(GetColor(GuiGetStyle(COLORPICKER , BORDER + (int)state * 3)) , guiAlpha));
+            GuiDrawRectangle(selector , 0 , Color.BLANK , GetColor(GuiGetStyle(COLORPICKER , BORDER + (int)state * 3)));
             //--------------------------------------------------------------------
 
-            return hue;
+            return result;
         }
 
         // Color Picker control
@@ -4118,7 +4287,7 @@ namespace raygui_cs
             //Rectangle boundsAlpha = { bounds.x, bounds.y + bounds.height + GuiGetStyle(COLORPICKER, BARS_PADDING), bounds.width, GuiGetStyle(COLORPICKER, BARS_THICK) };
 
             Vector3 hsv = ConvertRGBtoHSV(new(color.r / 255.0f , color.g / 255.0f , color.b / 255.0f));
-            hsv.X = GuiColorBarHue(boundsHue , ReadonlyString.NULL , hsv.X);
+            hsv.X = GuiColorBarHue(boundsHue , ReadonlyString.NULL ,ref hsv.X);
             //color.a = (byte)(GuiColorBarAlpha(boundsAlpha, (float)color.a/255.0f)*255.0f);
             Vector3 rgb = ConvertHSVtoRGB(hsv);
             color = new((byte)MathF.Round(rgb.X * 255.0f) , (byte)MathF.Round(rgb.Y * 255.0f) , (byte)MathF.Round(rgb.Z * 255.0f) , color.a);
