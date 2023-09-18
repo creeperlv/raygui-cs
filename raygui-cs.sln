@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34004.107
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "raygui-cs", "raygui-cs\raygui-cs.csproj", "{2D6CF0FA-6DD4-4214-B2ED-3640DF65CC8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "raygui-cs", "raygui-cs\raygui-cs.csproj", "{2D6CF0FA-6DD4-4214-B2ED-3640DF65CC8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raygui_cs.Test", "Raygui_cs.Test\Raygui_cs.Test.csproj", "{BDEF043E-792A-4AEE-9DC1-5D894EB79DBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Raygui_cs.Test", "Raygui_cs.Test\Raygui_cs.Test.csproj", "{BDEF043E-792A-4AEE-9DC1-5D894EB79DBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "raygui-cs.styles.dark", "raygui-cs.styles.dark\raygui-cs.styles.dark.csproj", "{001B6292-945B-4C27-A49D-BA1303E190ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{BDEF043E-792A-4AEE-9DC1-5D894EB79DBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDEF043E-792A-4AEE-9DC1-5D894EB79DBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDEF043E-792A-4AEE-9DC1-5D894EB79DBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{001B6292-945B-4C27-A49D-BA1303E190ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{001B6292-945B-4C27-A49D-BA1303E190ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{001B6292-945B-4C27-A49D-BA1303E190ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{001B6292-945B-4C27-A49D-BA1303E190ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

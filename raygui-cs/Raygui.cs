@@ -284,6 +284,32 @@ namespace raygui_cs
         TEXT_WRAP_MODE              // TextBox wrap mode for multiline: 0-NO_WRAP, 1-CHAR_WRAP, 2-WORD_WRAP
     };
 
+    public struct GlyphInfo
+    {
+        public int value;              // Character value (Unicode)
+        public int offsetX;            // Character offset X when drawing
+        public int offsetY;            // Character offset Y when drawing
+        public int advanceX;           // Character advance position X
+        public Image image;            // Character image data
+
+        public GlyphInfo()
+        {
+            value=0;
+            offsetX=0;
+            offsetX=0;
+            advanceX=0;
+            image=default;
+        }
+        public GlyphInfo(int value , int offsetX , int offsetY , int advanceX , Image image)
+        {
+            this.value = value;
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
+            this.advanceX = advanceX;
+            this.image = image;
+        }
+    }
+
     public enum GuiPropertyElement
     {
         BORDER = 0,
@@ -291,6 +317,26 @@ namespace raygui_cs
         TEXT,
         OTHER
     };
+    public struct GuiStyleProp
+    {
+        public ushort controlId;   // Control identifier
+        public ushort propertyId;  // Property identifier
+        public uint propertyValue;          // Property value
+
+        public GuiStyleProp()
+        {
+            controlId = 0;
+            propertyId = 0;
+            propertyValue = 0;
+        }
+        public GuiStyleProp(ushort controlId , ushort propertyId , uint propertyValue)
+        {
+            this.controlId = controlId;
+            this.propertyId = propertyId;
+            this.propertyValue = propertyValue;
+        }
+    }
+
     public enum GuiControlProperty
     {
         BORDER_COLOR_NORMAL = 0,
@@ -3127,7 +3173,7 @@ namespace raygui_cs
             colorHsv = v;
             Rectangle boundsHue = new((float)bounds.x + bounds.width + GuiGetStyle(COLORPICKER , HUEBAR_PADDING) , (float)bounds.y , (float)GuiGetStyle(COLORPICKER , HUEBAR_WIDTH) , (float)bounds.height);
 
-            GuiColorBarHue(boundsHue , ReadonlyString.NULL ,ref colorHsv.X);
+            GuiColorBarHue(boundsHue , ReadonlyString.NULL , ref colorHsv.X);
 
             return result;
         }
@@ -4282,7 +4328,7 @@ namespace raygui_cs
             //Rectangle boundsAlpha = { bounds.x, bounds.y + bounds.height + GuiGetStyle(COLORPICKER, BARS_PADDING), bounds.width, GuiGetStyle(COLORPICKER, BARS_THICK) };
 
             Vector3 hsv = ConvertRGBtoHSV(new(color.r / 255.0f , color.g / 255.0f , color.b / 255.0f));
-            hsv.X = GuiColorBarHue(boundsHue , ReadonlyString.NULL ,ref hsv.X);
+            hsv.X = GuiColorBarHue(boundsHue , ReadonlyString.NULL , ref hsv.X);
             //color.a = (byte)(GuiColorBarAlpha(boundsAlpha, (float)color.a/255.0f)*255.0f);
             Vector3 rgb = ConvertHSVtoRGB(hsv);
             color = new((byte)MathF.Round(rgb.X * 255.0f) , (byte)MathF.Round(rgb.Y * 255.0f) , (byte)MathF.Round(rgb.Z * 255.0f) , color.a);
