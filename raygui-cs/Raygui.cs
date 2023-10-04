@@ -923,7 +923,7 @@ namespace raygui_cs
         }
         // Gui draw text using default font
 
-        static Rectangle GetTextBounds(int control , Rectangle bounds)
+        public static Rectangle GetTextBounds(int control , Rectangle bounds)
         {
             Rectangle textBounds = bounds;
 
