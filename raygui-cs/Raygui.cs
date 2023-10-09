@@ -929,7 +929,7 @@ namespace raygui_cs
 
             textBounds.x = bounds.x + GuiGetStyle(control , BORDER_WIDTH);
             textBounds.y = bounds.y + GuiGetStyle(control , BORDER_WIDTH) + GuiGetStyle(control , TEXT_PADDING);
-            textBounds.width = bounds.width - 2 * GuiGetStyle(control , BORDER_WIDTH) - 2 * GuiGetStyle(control , TEXT_PADDING);
+            textBounds.width = Math.Max(bounds.width - 2 * GuiGetStyle(control , BORDER_WIDTH) - 2 * GuiGetStyle(control , TEXT_PADDING),0);
             textBounds.height = bounds.height - 2 * GuiGetStyle(control , BORDER_WIDTH) - 2 * GuiGetStyle(control , TEXT_PADDING);
 
             // Consider TEXT_PADDING properly, depends on control type and TEXT_ALIGNMENT
